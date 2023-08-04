@@ -1,9 +1,11 @@
 import {
+    Accessor,
     Camera,
     Material,
     Mesh,
     Model,
     Node,
+    Primitive,
     Sampler,
     Texture,
     Transform,
@@ -188,17 +190,54 @@ export class GLTFLoader {
         return material;
     }
 
-    prepareAccessor(index) {
-        const viewMap = {
-            5120: Int8Array,
-            5121: Uint8Array,
-            5122: Int16Array,
-            5123: Uint16Array,
-            5125: Uint32Array,
-            5126: Float32Array,
-        };
+    loadAccessor(nameOrIndex) {
+        const gltfSpec = this.findByNameOrIndex(this.gltf.accessors, nameOrIndex);
+        if (!gltfSpec) {
+            return null;
+        }
+        if (this.cache.has(gltfSpec)) {
+            return this.cache.get(gltfSpec);
+        }
 
-        const numComponentsMap = {
+        if (gltfSpec.bufferView === undefined) {
+            console.warn('Accessor does not reference a buffer view');
+            return null;
+        }
+
+        const bufferView = this.gltf.bufferViews[gltfSpec.bufferView];
+        const buffer = this.loadBuffer(bufferView.buffer);
+
+        const componentType = {
+            5120: 'int',
+            5121: 'int',
+            5122: 'int',
+            5123: 'int',
+            5124: 'int',
+            5125: 'int',
+            5126: 'float',
+        }[gltfSpec.componentType];
+
+        const componentSize = {
+            5120: 1,
+            5121: 1,
+            5122: 2,
+            5123: 2,
+            5124: 4,
+            5125: 4,
+            5126: 4,
+        }[gltfSpec.componentType];
+
+        const componentSigned = {
+            5120: true,
+            5121: false,
+            5122: true,
+            5123: false,
+            5124: true,
+            5125: false,
+            5126: false,
+        }[gltfSpec.componentType];
+
+        const componentCount = {
             SCALAR: 1,
             VEC2: 2,
             VEC3: 3,
@@ -206,37 +245,27 @@ export class GLTFLoader {
             MAT2: 4,
             MAT3: 9,
             MAT4: 16,
-        };
+        }[gltfSpec.type];
 
-        const accessor = this.gltf.accessors[index];
+        const componentNormalized = gltfSpec.normalized ?? false;
 
-        if (accessor.bufferView === undefined) {
-            console.warn('Accessor does not reference a buffer view');
-            return null;
-        }
-        const bufferView = this.gltf.bufferViews[accessor.bufferView];
-        const buffer = this.loadBuffer(bufferView.buffer);
+        const stride = bufferView.byteStride ?? (componentSize * componentCount);
+        const offset = (bufferView.byteOffset ?? 0) + (gltfSpec.byteOffset ?? 0);
 
-        const viewConstructor = viewMap[accessor.componentType];
-        const viewOffset = bufferView.byteOffset ?? 0;
-        const viewLength = bufferView.byteLength / viewConstructor.BYTES_PER_ELEMENT;
-        const view = new viewConstructor(buffer, viewOffset, viewLength);
+        const accessor = new Accessor({
+            buffer,
+            offset,
+            stride,
 
-        const byteStride = bufferView.byteStride;
-        const byteOffset = accessor.byteOffset ?? 0;
+            componentType,
+            componentCount,
+            componentSize,
+            componentSigned,
+            componentNormalized,
+        });
 
-        const numComponents = numComponentsMap[accessor.type];
-        const count = accessor.count;
-        const stride = byteStride ? byteStride / viewConstructor.BYTES_PER_ELEMENT : numComponents;
-        const offset = byteOffset / viewConstructor.BYTES_PER_ELEMENT;
-
-        function get(i) {
-            const start = offset + stride * i;
-            const end = offset + stride * i + numComponents;
-            return [...view.slice(start, end)];
-        }
-
-        return { view, count, offset, stride, numComponents, get };
+        this.cache.set(gltfSpec, accessor);
+        return accessor;
     }
 
     createMeshFromPrimitive(spec) {
@@ -250,15 +279,15 @@ export class GLTFLoader {
             return new Mesh();
         }
 
-        const attributeAccessData = {};
+        const accessors = {};
         for (const attribute in spec.attributes) {
-            attributeAccessData[attribute] = this.prepareAccessor(spec.attributes[attribute]);
+            accessors[attribute] = this.loadAccessor(spec.attributes[attribute]);
         }
 
-        const position = attributeAccessData.POSITION;
-        const texcoords = attributeAccessData.TEXCOORD_0;
-        const normal = attributeAccessData.NORMAL;
-        const tangent = attributeAccessData.TANGENT;
+        const position = accessors.POSITION;
+        const texcoords = accessors.TEXCOORD_0;
+        const normal = accessors.NORMAL;
+        const tangent = accessors.TANGENT;
 
         const vertexCount = position.count;
         const vertices = [];
@@ -275,7 +304,7 @@ export class GLTFLoader {
         }
 
         const indices = [];
-        const indicesAccessor = this.prepareAccessor(spec.indices);
+        const indicesAccessor = this.loadAccessor(spec.indices);
         const indexCount = indicesAccessor.count;
 
         for (let i = 0; i < indexCount; i++) {
@@ -294,7 +323,7 @@ export class GLTFLoader {
             return this.cache.get(gltfSpec);
         }
 
-        const models = [];
+        const primitives = [];
         for (const primitiveSpec of gltfSpec.primitives) {
             if (primitiveSpec.mode !== 4 && primitiveSpec.mode !== undefined) {
                 console.warn(`GLTFLoader: skipping primitive with mode ${primitiveSpec.mode}`);
@@ -308,11 +337,13 @@ export class GLTFLoader {
                 options.material = this.loadMaterial(primitiveSpec.material);
             }
 
-            models.push(new Model(options));
+            primitives.push(new Primitive(options));
         }
 
-        this.cache.set(gltfSpec, models);
-        return models;
+        const model = new Model({ primitives })
+
+        this.cache.set(gltfSpec, model);
+        return model;
     }
 
     loadCamera(nameOrIndex) {
@@ -375,10 +406,7 @@ export class GLTFLoader {
         }
 
         if (gltfSpec.mesh !== undefined) {
-            const models = this.loadMesh(gltfSpec.mesh);
-            for (const model of models) {
-                node.addComponent(model);
-            }
+            node.addComponent(this.loadMesh(gltfSpec.mesh));
         }
 
         this.cache.set(gltfSpec, node);

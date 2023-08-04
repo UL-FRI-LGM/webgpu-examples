@@ -1,11 +1,13 @@
 import { mat4 } from '../../../lib/gl-matrix-module.js';
 
+import { JSONLoader } from '../../../common/engine/loaders/JSONLoader.js';
+
 import { ResizeSystem } from '../../../common/engine/systems/ResizeSystem.js';
 import { UpdateSystem } from '../../../common/engine/systems/UpdateSystem.js';
 
 import { createTextureFromSource } from '../../../common/engine/webgpu/TextureUtils.js';
 import { createBufferFromArrayBuffer } from '../../../common/engine/webgpu/BufferUtils.js';
-import { createArrayBufferFromLayout } from '../../../common/engine/core/ArrayUtils.js';
+import { createVertexBuffer } from '../../../common/engine/core/VertexUtils.js';
 
 const adapter = await navigator.gpu.requestAdapter();
 const device = await adapter.requestDevice();
@@ -16,19 +18,21 @@ const format = navigator.gpu.getPreferredCanvasFormat();
 context.configure({ device, format });
 
 const vertexBufferLayout = {
+    arrayStride: 20,
     attributes: [
         {
+            name: 'position',
             shaderLocation: 0,
             offset: 0,
             format: 'float32x3',
         },
         {
+            name: 'texcoords',
             shaderLocation: 1,
             offset: 12,
             format: 'float32x2',
         },
     ],
-    arrayStride: 20,
 };
 
 const code = await fetch('shader.wgsl').then(response => response.text());
@@ -52,36 +56,16 @@ const pipeline = device.createRenderPipeline({
     layout: 'auto',
 });
 
-const model = await fetch('../../../common/models/lamp.json').then(response => response.json());
+const mesh = await new JSONLoader().loadMesh('../../../common/models/lamp.json');
 
-const vertices = createArrayBufferFromLayout(model, {
-    positions: {
-        view: Float32Array,
-        components: 3,
-        stride: 20,
-        offset: 0,
-    },
-    texcoords: {
-        view: Float32Array,
-        components: 2,
-        stride: 20,
-        offset: 12,
-    },
-});
+const vertices = createVertexBuffer(mesh.vertices, vertexBufferLayout);
 const vertexBuffer = createBufferFromArrayBuffer(device, {
     source: vertices,
     usage: GPUBufferUsage.VERTEX,
 });
 
-const numberOfIndices = model.indices.length;
-const indices = createArrayBufferFromLayout(model, {
-    indices: {
-        view: Uint32Array,
-        components: 1,
-        stride: 4,
-        offset: 0,
-    },
-});
+const numberOfIndices = mesh.indices.length;
+const indices = new Uint32Array(mesh.indices).buffer;
 const indexBuffer = createBufferFromArrayBuffer(device, {
     source: indices,
     usage: GPUBufferUsage.INDEX,

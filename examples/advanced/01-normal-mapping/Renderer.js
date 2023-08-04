@@ -13,6 +13,10 @@ import {
 } from '../../../common/engine/core/SceneUtils.js';
 
 import {
+    createVertexBuffer,
+} from '../../../common/engine/core/VertexUtils.js';
+
+import {
     createTextureFromSource,
     createBufferFromArrayBuffer,
 } from '../../../common/engine/webgpu.js';
@@ -28,62 +32,37 @@ export async function initializeWebGPU(canvas) {
     return { adapter, device, queue, context, format };
 }
 
-function createMeshArrayBuffers(mesh) {
-    const vertexBufferStride = 48;
-    const vertexBufferSize = mesh.vertices.length * vertexBufferStride;
-    const vertexBufferArrayBuffer = new ArrayBuffer(vertexBufferSize);
-    const vertexBufferFloatArray = new Float32Array(vertexBufferArrayBuffer);
-
-    for (let i = 0; i < mesh.vertices.length; i++) {
-        vertexBufferFloatArray[i * 12 + 0] = mesh.vertices[i].position[0];
-        vertexBufferFloatArray[i * 12 + 1] = mesh.vertices[i].position[1];
-        vertexBufferFloatArray[i * 12 + 2] = mesh.vertices[i].position[2];
-
-        vertexBufferFloatArray[i * 12 + 3] = mesh.vertices[i].texcoords[0];
-        vertexBufferFloatArray[i * 12 + 4] = mesh.vertices[i].texcoords[1];
-
-        vertexBufferFloatArray[i * 12 + 5] = mesh.vertices[i].normal[0];
-        vertexBufferFloatArray[i * 12 + 6] = mesh.vertices[i].normal[1];
-        vertexBufferFloatArray[i * 12 + 7] = mesh.vertices[i].normal[2];
-
-        vertexBufferFloatArray[i * 12 + 8] = mesh.vertices[i].tangent[0];
-        vertexBufferFloatArray[i * 12 + 9] = mesh.vertices[i].tangent[1];
-        vertexBufferFloatArray[i * 12 + 10] = mesh.vertices[i].tangent[2];
-    }
-
-    const indexBufferUintArray = new Uint32Array(mesh.indices);
-    const indexBufferArrayBuffer = indexBufferUintArray.buffer;
-
-    return { vertexBufferArrayBuffer, indexBufferArrayBuffer };
-}
+const vertexBufferLayout = {
+    arrayStride: 48,
+    attributes: [
+        {
+            name: 'position',
+            shaderLocation: 0,
+            offset: 0,
+            format: 'float32x3',
+        },
+        {
+            name: 'texcoords',
+            shaderLocation: 1,
+            offset: 12,
+            format: 'float32x2',
+        },
+        {
+            name: 'normal',
+            shaderLocation: 2,
+            offset: 20,
+            format: 'float32x3',
+        },
+        {
+            name: 'tangent',
+            shaderLocation: 3,
+            offset: 32,
+            format: 'float32x3',
+        },
+    ],
+};
 
 export async function createPipeline(device, format) {
-    const vertexBufferLayout = {
-        attributes: [
-            {
-                shaderLocation: 0,
-                offset: 0,
-                format: 'float32x3',
-            },
-            {
-                shaderLocation: 1,
-                offset: 12,
-                format: 'float32x2',
-            },
-            {
-                shaderLocation: 2,
-                offset: 20,
-                format: 'float32x3',
-            },
-            {
-                shaderLocation: 3,
-                offset: 32,
-                format: 'float32x3',
-            },
-        ],
-        arrayStride: 48,
-    };
-
     const code = await fetch('shader.wgsl').then(response => response.text());
     const module = device.createShaderModule({ code });
     const pipeline = await device.createRenderPipelineAsync({
@@ -163,15 +142,18 @@ export class Renderer {
     }
 
     prepareMesh(mesh) {
-        const { vertexBufferArrayBuffer, indexBufferArrayBuffer } = createMeshArrayBuffers(mesh);
+        const vertexBufferArrayBuffer = createVertexBuffer(mesh.vertices, vertexBufferLayout);
         const vertexBuffer = createBufferFromArrayBuffer(this.device, {
             source: vertexBufferArrayBuffer,
             usage: GPUBufferUsage.VERTEX,
         });
+
+        const indexBufferArrayBuffer = new Uint32Array(mesh.indices).buffer;
         const indexBuffer = createBufferFromArrayBuffer(this.device, {
             source: indexBufferArrayBuffer,
             usage: GPUBufferUsage.INDEX,
         });
+
         this.gpuObjects.set(mesh, { vertexBuffer, indexBuffer });
     }
 
@@ -284,33 +266,39 @@ export class Renderer {
     }
 
     renderModel(renderPass, model, modelMatrix) {
-        // set model uniforms
-        if (!this.gpuObjects.has(model)) {
-            this.prepareModel(model);
+        for (const primitive of model.primitives) {
+            this.renderPrimitive(renderPass, primitive, modelMatrix);
         }
-        const { modelUniformBuffer, modelBindGroup } = this.gpuObjects.get(model);
+    }
+
+    renderPrimitive(renderPass, primitive, modelMatrix) {
+        // set model uniforms
+        if (!this.gpuObjects.has(primitive)) {
+            this.prepareModel(primitive);
+        }
+        const { modelUniformBuffer, modelBindGroup } = this.gpuObjects.get(primitive);
         const normalMatrix = createNormalMatrixFromModelMatrix(modelMatrix);
         this.queue.writeBuffer(modelUniformBuffer, 0, modelMatrix);
         this.queue.writeBuffer(modelUniformBuffer, 64, normalMatrix);
         renderPass.setBindGroup(1, modelBindGroup);
 
         // set material
-        if (!this.gpuObjects.has(model.material)) {
-            this.prepareMaterial(model.material);
+        if (!this.gpuObjects.has(primitive.material)) {
+            this.prepareMaterial(primitive.material);
         }
-        const materialBindGroup = this.gpuObjects.get(model.material);
+        const materialBindGroup = this.gpuObjects.get(primitive.material);
         renderPass.setBindGroup(2, materialBindGroup);
 
         // set mesh vertex and index buffers
-        if (!this.gpuObjects.has(model.mesh)) {
-            this.prepareMesh(model.mesh);
+        if (!this.gpuObjects.has(primitive.mesh)) {
+            this.prepareMesh(primitive.mesh);
         }
-        const { vertexBuffer, indexBuffer } = this.gpuObjects.get(model.mesh);
+        const { vertexBuffer, indexBuffer } = this.gpuObjects.get(primitive.mesh);
         renderPass.setVertexBuffer(0, vertexBuffer);
         renderPass.setIndexBuffer(indexBuffer, 'uint32');
 
-        // draw the model
-        renderPass.drawIndexed(model.mesh.indices.length);
+        // draw the primitive
+        renderPass.drawIndexed(primitive.mesh.indices.length);
     }
 
 }

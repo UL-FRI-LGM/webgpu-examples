@@ -2,7 +2,7 @@ import { Mesh, Vertex } from '../core.js';
 
 export class JSONLoader {
 
-    async load(url) {
+    async loadMesh(url) {
         const response = await fetch(url);
         const json = await response.json();
 

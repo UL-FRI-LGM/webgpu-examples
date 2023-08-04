@@ -1,11 +1,9 @@
 export class Model {
 
     constructor({
-        mesh,
-        material,
+        primitives = [],
     } = {}) {
-        this.mesh = mesh;
-        this.material = material;
+        this.primitives = primitives;
     }
 
 }

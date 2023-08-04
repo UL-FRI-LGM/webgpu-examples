@@ -1,16 +1,6 @@
-import {
-    Camera,
-    Material,
-    Mesh,
-    Model,
-    Node,
-    Sampler,
-    Texture,
-    Transform,
-    Vertex,
-} from '../../../common/engine/core.js';
-
 import { quat } from '../../../lib/gl-matrix-module.js';
+
+import { Camera } from '../../../common/engine/core.js';
 
 import { GLTFLoader } from '../../../common/engine/loaders/GLTFLoader.js';
 
