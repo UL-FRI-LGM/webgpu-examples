@@ -24,29 +24,13 @@ export class GLTFLoader {
     // Loads the GLTF JSON file and all buffers and images that it references.
     // It also creates a cache for all future resource loading.
     async load(url) {
-        this.gltf = await fetch(url).then(response => response.json());
+        this.gltfUrl = new URL(url, window.location);
+        this.gltf = await this.fetchJson(this.gltfUrl);
         this.defaultScene = this.gltf.scene ?? 0;
         this.cache = new Map();
 
-        const buffers = this.gltf.buffers.map(async buffer => {
-            const bufferUrl = new URL(buffer.uri, url);
-            const response = await fetch(bufferUrl);
-            const arrayBuffer = await response.arrayBuffer();
-            this.cache.set(buffer, arrayBuffer);
-            return arrayBuffer;
-        });
-
-        const images = this.gltf.images.map(async image => {
-            const imageUrl = new URL(image.uri, url);
-            const response = await fetch(imageUrl);
-            const blob = await response.blob();
-            const imageBitmap = await createImageBitmap(blob);
-            this.cache.set(image, imageBitmap);
-            return imageBitmap;
-        });
-
-        this.buffers = await Promise.all(buffers);
-        this.images = await Promise.all(images);
+        await Promise.all(this.gltf.buffers?.map(buffer => this.preloadBuffer(buffer)) ?? []);
+        await Promise.all(this.gltf.images?.map(image => this.preloadImage(image)) ?? []);
     }
 
     // Finds an object in list at the given index, or if the 'name'
@@ -57,6 +41,56 @@ export class GLTFLoader {
         } else {
             return list.find(element => element.name === nameOrIndex);
         }
+    }
+
+    fetchJson(url) {
+        return fetch(url)
+            .then(response => response.json());
+    }
+
+    fetchBuffer(url) {
+        return fetch(url)
+            .then(response => response.arrayBuffer());
+    }
+
+    fetchImage(url) {
+        return fetch(url)
+            .then(response => response.blob())
+            .then(blob => createImageBitmap(blob));
+    }
+
+    async preloadImage(gltfSpec) {
+        if (this.cache.has(gltfSpec)) {
+            return this.cache.get(gltfSpec);
+        }
+
+        if (gltfSpec.uri) {
+            const url = new URL(gltfSpec.uri, this.gltfUrl);
+            const image = await this.fetchImage(url);
+            this.cache.set(gltfSpec, image);
+            return image;
+        } else {
+            const bufferView = this.gltf.bufferViews[gltfSpec.bufferView];
+            const buffer = this.loadBuffer(bufferView.buffer);
+            const dataView = new DataView(buffer, bufferView.byteOffset ?? 0, bufferView.byteLength);
+            const blob = new Blob([dataView], { type: gltfSpec.mimeType });
+            const url = URL.createObjectURL(blob);
+            const image = await this.fetchImage(url);
+            URL.revokeObjectURL(url);
+            this.cache.set(gltfSpec, image);
+            return image;
+        }
+    }
+
+    async preloadBuffer(gltfSpec) {
+        if (this.cache.has(gltfSpec)) {
+            return this.cache.get(gltfSpec);
+        }
+
+        const url = new URL(gltfSpec.uri, this.gltfUrl);
+        const buffer = await this.fetchBuffer(url);
+        this.cache.set(gltfSpec, buffer);
+        return buffer;
     }
 
     loadImage(nameOrIndex) {
@@ -116,11 +150,11 @@ export class GLTFLoader {
         };
 
         const sampler = new Sampler({
-            minFilter: minFilter[gltfSpec.minFilter],
-            magFilter: magFilter[gltfSpec.magFilter],
-            mipmapFilter: mipmapFilter[gltfSpec.minFilter],
-            addressModeU: addressMode[gltfSpec.wrapS],
-            addressModeV: addressMode[gltfSpec.wrapT],
+            minFilter: minFilter[gltfSpec.minFilter ?? 9729],
+            magFilter: magFilter[gltfSpec.magFilter ?? 9729],
+            mipmapFilter: mipmapFilter[gltfSpec.minFilter ?? 9729],
+            addressModeU: addressMode[gltfSpec.wrapS ?? 10497],
+            addressModeV: addressMode[gltfSpec.wrapT ?? 10497],
         });
 
         this.cache.set(gltfSpec, sampler);
@@ -136,10 +170,15 @@ export class GLTFLoader {
             return this.cache.get(gltfSpec);
         }
 
-        const image = this.loadImage(gltfSpec.source);
-        const sampler = this.loadSampler(gltfSpec.sampler);
+        const options = {};
+        if (gltfSpec.source !== undefined) {
+            options.image = this.loadImage(gltfSpec.source);
+        }
+        if (gltfSpec.sampler !== undefined) {
+            options.sampler = this.loadSampler(gltfSpec.sampler);
+        }
 
-        const texture = new Texture({ image, sampler });
+        const texture = new Texture(options);
 
         this.cache.set(gltfSpec, texture);
         return texture;
@@ -340,7 +379,7 @@ export class GLTFLoader {
             primitives.push(new Primitive(options));
         }
 
-        const model = new Model({ primitives })
+        const model = new Model({ primitives });
 
         this.cache.set(gltfSpec, model);
         return model;
