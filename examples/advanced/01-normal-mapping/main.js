@@ -40,7 +40,7 @@ const model = gltfLoader.loadNode('Suzanne');
 const material = model.getComponentOfType(Model).primitives[0].material;
 material.baseTexture = texture;
 
-material.normal = new Texture({
+material.normalTexture = new Texture({
     image: await new ImageLoader().load('../../../common/images/crate-normal.png'),
     sampler: new Sampler({
         addressModeU: 'repeat',

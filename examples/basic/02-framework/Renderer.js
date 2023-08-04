@@ -170,20 +170,20 @@ export class Renderer {
     }
 
     prepareMaterial(material) {
-        this.prepareTexture(material.base);
+        this.prepareTexture(material.baseTexture);
 
-        const base = this.gpuObjects.get(material.base);
+        const baseTexture = this.gpuObjects.get(material.baseTexture);
 
         const materialBindGroup = this.device.createBindGroup({
             layout: this.pipeline.getBindGroupLayout(2),
             entries: [
                 {
                     binding: 0,
-                    resource: base.texture.createView(),
+                    resource: baseTexture.texture.createView(),
                 },
                 {
                     binding: 1,
-                    resource: base.sampler,
+                    resource: baseTexture.sampler,
                 },
             ],
         });

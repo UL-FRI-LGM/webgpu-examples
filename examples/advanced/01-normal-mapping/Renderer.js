@@ -182,11 +182,11 @@ export class Renderer {
     }
 
     prepareMaterial(material) {
-        this.prepareTexture(material.base);
-        this.prepareTexture(material.normal);
+        this.prepareTexture(material.baseTexture);
+        this.prepareTexture(material.normalTexture);
 
-        const base = this.gpuObjects.get(material.base);
-        const normal = this.gpuObjects.get(material.normal);
+        const base = this.gpuObjects.get(material.baseTexture);
+        const normal = this.gpuObjects.get(material.normalTexture);
 
         const materialBindGroup = this.device.createBindGroup({
             layout: this.pipeline.getBindGroupLayout(2),

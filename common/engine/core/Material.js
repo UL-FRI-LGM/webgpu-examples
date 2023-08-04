@@ -1,12 +1,12 @@
 export class Material {
 
     constructor({
-        base,
-        emission,
-        normal,
-        occlusion,
-        roughness,
-        metalness,
+        baseTexture,
+        emissionTexture,
+        normalTexture,
+        occlusionTexture,
+        roughnessTexture,
+        metalnessTexture,
 
         baseFactor = [1, 1, 1, 1],
         emissionFactor = [0, 0, 0],
@@ -15,12 +15,12 @@ export class Material {
         roughnessFactor = 1,
         metalnessFactor = 1,
     } = {}) {
-        this.base = base;
-        this.emission = emission;
-        this.normal = normal;
-        this.occlusion = occlusion;
-        this.roughness = roughness;
-        this.metalness = metalness;
+        this.baseTexture = baseTexture;
+        this.emissionTexture = emissionTexture;
+        this.normalTexture = normalTexture;
+        this.occlusionTexture = occlusionTexture;
+        this.roughnessTexture = roughnessTexture;
+        this.metalnessTexture = metalnessTexture;
 
         this.baseFactor = baseFactor;
         this.emissionFactor = emissionFactor;

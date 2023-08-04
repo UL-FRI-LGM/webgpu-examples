@@ -158,29 +158,29 @@ export class GLTFLoader {
         const pbr = gltfSpec.pbrMetallicRoughness;
         if (pbr) {
             if (pbr.baseColorTexture) {
-                options.base = this.loadTexture(pbr.baseColorTexture.index);
+                options.baseTexture = this.loadTexture(pbr.baseColorTexture.index);
             }
             if (pbr.metallicRoughnessTexture) {
-                options.metallic = this.loadTexture(pbr.metallicRoughnessTexture.index);
-                options.roughness = this.loadTexture(pbr.metallicRoughnessTexture.index);
+                options.metalnessTexture = this.loadTexture(pbr.metallicRoughnessTexture.index);
+                options.roughnessTexture = this.loadTexture(pbr.metallicRoughnessTexture.index);
             }
             options.baseFactor = pbr.baseColorFactor;
-            options.metallicFactor = pbr.metallicFactor;
+            options.metalnessFactor = pbr.metallicFactor;
             options.roughnessFactor = pbr.roughnessFactor;
         }
 
         if (gltfSpec.normalTexture) {
-            options.normal = this.loadTexture(gltfSpec.normalTexture.index);
+            options.normalTexture = this.loadTexture(gltfSpec.normalTexture.index);
             options.normalFactor = gltfSpec.normalTexture.scale;
         }
 
         if (gltfSpec.emissiveTexture) {
-            options.emissive = this.loadTexture(gltfSpec.emissiveTexture.index);
-            options.emissiveFactor = gltfSpec.emissiveFactor;
+            options.emissionTexture = this.loadTexture(gltfSpec.emissiveTexture.index);
+            options.emissionFactor = gltfSpec.emissiveFactor;
         }
 
         if (gltfSpec.occlusionTexture) {
-            options.occlusion = this.loadTexture(gltfSpec.occlusionTexture.index);
+            options.occlusionTexture = this.loadTexture(gltfSpec.occlusionTexture.index);
             options.occlusionFactor = gltfSpec.occlusionTexture.strength;
         }
 
