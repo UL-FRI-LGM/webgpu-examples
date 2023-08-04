@@ -13,7 +13,7 @@ const gltfLoader = new GLTFLoader();
 await gltfLoader.load(new URL('../../../common/models/monkey.gltf', import.meta.url));
 
 const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
-const camera = gltfLoader.loadNode('Camera');
+const camera = scene.find(node => node.getComponentOfType(Camera));
 
 const canvas = document.querySelector('canvas');
 const renderer = new Renderer(canvas);
