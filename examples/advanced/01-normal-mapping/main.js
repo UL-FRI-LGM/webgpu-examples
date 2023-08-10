@@ -30,22 +30,17 @@ const canvas = document.querySelector('canvas');
 const renderer = new Renderer(canvas);
 await renderer.initialize();
 
-const imagedata = new ImageData(new Uint8ClampedArray([255, 255, 255, 255]), 1 ,1);
-const image = await createImageBitmap(imagedata);
-const texture = new Texture({
-    image: image,
-    sampler: new Sampler(),
-});
 const model = gltfLoader.loadNode('Suzanne');
 const material = model.getComponentOfType(Model).primitives[0].material;
-material.baseTexture = texture;
+
+material.baseTexture = new Texture({
+    image: await createImageBitmap(new ImageData(new Uint8ClampedArray([255, 255, 255, 255]), 1, 1)),
+    sampler: new Sampler(),
+});
 
 material.normalTexture = new Texture({
     image: await new ImageLoader().load('../../../common/images/crate-normal.png'),
-    sampler: new Sampler({
-        addressModeU: 'repeat',
-        addressModeV: 'repeat',
-    }),
+    sampler: new Sampler(),
 });
 
 function update(t, dt) {
