@@ -2,7 +2,7 @@ import { Mesh, Vertex } from '../core.js';
 
 export class OBJLoader {
 
-    async load(url) {
+    async loadMesh(url) {
         const response = await fetch(url);
         const text = await response.text();
 
