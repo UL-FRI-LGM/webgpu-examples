@@ -1,13 +1,9 @@
 import { mat4 } from '../../../lib/gl-matrix-module.js';
 
-import { JSONLoader } from '../../../common/engine/loaders/JSONLoader.js';
+import * as WebGPU from '../../../common/engine/WebGPU.js';
 
 import { ResizeSystem } from '../../../common/engine/systems/ResizeSystem.js';
 import { UpdateSystem } from '../../../common/engine/systems/UpdateSystem.js';
-
-import { createTextureFromSource } from '../../../common/engine/webgpu/TextureUtils.js';
-import { createBufferFromArrayBuffer } from '../../../common/engine/webgpu/BufferUtils.js';
-import { createVertexBuffer } from '../../../common/engine/core/VertexUtils.js';
 
 const adapter = await navigator.gpu.requestAdapter();
 const device = await adapter.requestDevice();
@@ -17,8 +13,36 @@ const context = canvas.getContext('webgpu');
 const format = navigator.gpu.getPreferredCanvasFormat();
 context.configure({ device, format });
 
+const vertexBuffer = WebGPU.createBuffer(device, {
+    usage: GPUBufferUsage.VERTEX,
+    data: new Float32Array([
+        //  positions            colors           index
+        -1, -1, -1,  1,      0,  0,  0,  1,    //   0
+        -1, -1,  1,  1,      0,  0,  1,  1,    //   1
+        -1,  1, -1,  1,      0,  1,  0,  1,    //   2
+        -1,  1,  1,  1,      0,  1,  1,  1,    //   3
+         1, -1, -1,  1,      1,  0,  0,  1,    //   4
+         1, -1,  1,  1,      1,  0,  1,  1,    //   5
+         1,  1, -1,  1,      1,  1,  0,  1,    //   6
+         1,  1,  1,  1,      1,  1,  1,  1,    //   7
+    ]),
+});
+
+const numberOfIndices = 36;
+const indexBuffer = WebGPU.createBuffer(device, {
+    usage: GPUBufferUsage.INDEX,
+    data: new Uint32Array([
+        0, 1, 2,    2, 1, 3,
+        4, 0, 6,    6, 0, 2,
+        5, 4, 7,    7, 4, 6,
+        1, 5, 3,    3, 5, 7,
+        6, 2, 7,    7, 2, 3,
+        1, 0, 5,    5, 0, 4,
+    ]),
+});
+
 const vertexBufferLayout = {
-    arrayStride: 20,
+    arrayStride: 32,
     attributes: [
         {
             name: 'position',
@@ -27,10 +51,10 @@ const vertexBufferLayout = {
             format: 'float32x3',
         },
         {
-            name: 'texcoords',
+            name: 'color',
             shaderLocation: 1,
-            offset: 12,
-            format: 'float32x2',
+            offset: 16,
+            format: 'float32x4',
         },
     ],
 };
@@ -56,31 +80,9 @@ const pipeline = device.createRenderPipeline({
     layout: 'auto',
 });
 
-const mesh = await new JSONLoader().loadMesh('../../../common/models/lamp.json');
-
-const vertices = createVertexBuffer(mesh.vertices, vertexBufferLayout);
-const vertexBuffer = createBufferFromArrayBuffer(device, {
-    source: vertices,
-    usage: GPUBufferUsage.VERTEX,
-});
-
-const numberOfIndices = mesh.indices.length;
-const indices = new Uint32Array(mesh.indices).buffer;
-const indexBuffer = createBufferFromArrayBuffer(device, {
-    source: indices,
-    usage: GPUBufferUsage.INDEX,
-});
-
 const uniformBuffer = device.createBuffer({
-    size: 256,
+    size: 64,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-});
-
-const imageBitmap = await fetch('../../../common/images/lamp.webp')
-    .then(response => response.blob())
-    .then(blob => createImageBitmap(blob));
-const texture = createTextureFromSource(device, {
-    source: imageBitmap,
 });
 
 let depthTexture = device.createTexture({
@@ -89,25 +91,12 @@ let depthTexture = device.createTexture({
     usage: GPUTextureUsage.RENDER_ATTACHMENT,
 });
 
-const sampler = device.createSampler({
-    magFilter: 'linear',
-    minFilter: 'linear',
-});
-
 const bindGroup = device.createBindGroup({
     layout: pipeline.getBindGroupLayout(0),
     entries: [
         {
             binding: 0,
             resource: { buffer: uniformBuffer },
-        },
-        {
-            binding: 1,
-            resource: texture.createView(),
-        },
-        {
-            binding: 2,
-            resource: sampler,
         },
     ],
 });
@@ -121,7 +110,7 @@ function update(t, dt) {
     mat4.rotateX(modelMatrix, modelMatrix, t * 0.5);
     mat4.rotateY(modelMatrix, modelMatrix, t * 0.6);
 
-    mat4.fromTranslation(viewMatrix, [0, 0, 1]);
+    mat4.fromTranslation(viewMatrix, [0, 0, 5]);
     mat4.invert(viewMatrix, viewMatrix);
 }
 
@@ -131,10 +120,7 @@ function render() {
     mat4.multiply(projectionViewModelMatrix, projectionViewModelMatrix, viewMatrix);
     mat4.multiply(projectionViewModelMatrix, projectionViewModelMatrix, modelMatrix);
 
-    queue.writeBuffer(uniformBuffer, 0, modelMatrix);
-    queue.writeBuffer(uniformBuffer, 64, viewMatrix);
-    queue.writeBuffer(uniformBuffer, 128, projectionMatrix);
-    queue.writeBuffer(uniformBuffer, 192, projectionViewModelMatrix);
+    queue.writeBuffer(uniformBuffer, 0, projectionViewModelMatrix);
 
     const encoder = device.createCommandEncoder();
     const renderPass = encoder.beginRenderPass({

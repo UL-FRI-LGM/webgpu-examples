@@ -1,5 +1,7 @@
 import { mat3, mat4 } from '../../../lib/gl-matrix-module.js';
 
+import * as WebGPU from '../../../common/engine/WebGPU.js';
+
 import {
     Camera,
     Model,
@@ -15,11 +17,6 @@ import {
 import {
     createVertexBuffer,
 } from '../../../common/engine/core/VertexUtils.js';
-
-import {
-    createTextureFromSource,
-    createBufferFromArrayBuffer,
-} from '../../../common/engine/webgpu.js';
 
 export async function initializeWebGPU(canvas) {
     const adapter = await navigator.gpu.requestAdapter();
@@ -131,14 +128,14 @@ export class Renderer {
 
     prepareMesh(mesh) {
         const vertexBufferArrayBuffer = createVertexBuffer(mesh.vertices, vertexBufferLayout);
-        const vertexBuffer = createBufferFromArrayBuffer(this.device, {
-            source: vertexBufferArrayBuffer,
+        const vertexBuffer = WebGPU.createBuffer(this.device, {
+            data: vertexBufferArrayBuffer,
             usage: GPUBufferUsage.VERTEX,
         });
 
         const indexBufferArrayBuffer = new Uint32Array(mesh.indices).buffer;
-        const indexBuffer = createBufferFromArrayBuffer(this.device, {
-            source: indexBufferArrayBuffer,
+        const indexBuffer = WebGPU.createBuffer(this.device, {
+            data: indexBufferArrayBuffer,
             usage: GPUBufferUsage.INDEX,
         });
 
@@ -164,7 +161,7 @@ export class Renderer {
 
     prepareTexture(texture) {
         this.gpuObjects.set(texture, {
-            texture: createTextureFromSource(this.device, { source: texture.image }),
+            texture: WebGPU.createTexture(this.device, { source: texture.image }),
             sampler: this.device.createSampler(texture.sampler),
         });
     }

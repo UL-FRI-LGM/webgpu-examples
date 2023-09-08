@@ -1,9 +1,6 @@
 import { mat3, mat4 } from '../../../lib/gl-matrix-module.js';
 
-import {
-    createTextureFromSource,
-    createBufferFromArrayBuffer,
-} from '../../../common/engine/webgpu.js';
+import * as WebGPU from '../../../common/engine/WebGPU.js';
 
 import {
     getLocalModelMatrix,
@@ -287,7 +284,7 @@ export class UnlitRenderer {
             return this.gpuObjects.get(image);
         }
 
-        const gpuTexture = createTextureFromSource(this.device, { source: image });
+        const gpuTexture = WebGPU.createTexture(this.device, { source: image });
 
         this.gpuObjects.set(image, gpuTexture);
         return gpuTexture;
@@ -310,14 +307,14 @@ export class UnlitRenderer {
         }
 
         const vertexBufferArrayBuffer = createVertexBuffer(mesh.vertices, vertexBufferLayout);
-        const vertexBuffer = createBufferFromArrayBuffer(this.device, {
-            source: vertexBufferArrayBuffer,
+        const vertexBuffer = WebGPU.createBuffer(this.device, {
+            data: vertexBufferArrayBuffer,
             usage: GPUBufferUsage.VERTEX,
         });
 
         const indexBufferArrayBuffer = new Uint32Array(mesh.indices).buffer;
-        const indexBuffer = createBufferFromArrayBuffer(this.device, {
-            source: indexBufferArrayBuffer,
+        const indexBuffer = WebGPU.createBuffer(this.device, {
+            data: indexBufferArrayBuffer,
             usage: GPUBufferUsage.INDEX,
         });
 

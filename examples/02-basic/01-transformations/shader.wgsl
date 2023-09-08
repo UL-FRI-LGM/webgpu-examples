@@ -1,43 +1,34 @@
 struct VertexInput {
     @location(0) position : vec3f,
-    @location(1) texcoords : vec2f,
+    @location(1) color : vec4f,
 }
 
 struct VertexOutput {
     @builtin(position) position : vec4f,
-    @location(0) texcoords : vec2f,
+    @location(0) color : vec4f,
 }
 
 struct FragmentInput {
-    @location(0) texcoords : vec2f,
+    @location(0) color : vec4f,
 }
 
 struct FragmentOutput {
     @location(0) color : vec4f,
 }
 
-struct Uniforms {
-    modelMatrix : mat4x4f,
-    viewMatrix : mat4x4f,
-    projectionMatrix : mat4x4f,
-    projectionViewModelMatrix : mat4x4f,
-}
-
-@group(0) @binding(0) var<uniform> uniforms : Uniforms;
-@group(0) @binding(1) var uTexture : texture_2d<f32>;
-@group(0) @binding(2) var uSampler : sampler;
+@group(0) @binding(0) var<uniform> matrix : mat4x4f;
 
 @vertex
 fn vertex(input : VertexInput) -> VertexOutput {
     var output : VertexOutput;
-    output.position = uniforms.projectionViewModelMatrix * vec4(input.position, 1);
-    output.texcoords = input.texcoords;
+    output.position = matrix * vec4(input.position, 1);
+    output.color = input.color;
     return output;
 }
 
 @fragment
 fn fragment(input : FragmentInput) -> FragmentOutput {
     var output : FragmentOutput;
-    output.color = textureSample(uTexture, uSampler, input.texcoords);
+    output.color = input.color;
     return output;
 }
