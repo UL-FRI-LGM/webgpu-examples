@@ -1,5 +1,7 @@
 import { mat3, mat4 } from '../../../lib/gl-matrix-module.js';
 
+import * as WebGPU from '../../../common/engine/WebGPU.js';
+
 import {
     Camera,
     Model,
