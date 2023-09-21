@@ -10,7 +10,6 @@ import {
 } from '../../../common/engine/core/SceneUtils.js';
 
 import {
-    parseFormat,
     createVertexBuffer,
 } from '../../../common/engine/core/VertexUtils.js';
 

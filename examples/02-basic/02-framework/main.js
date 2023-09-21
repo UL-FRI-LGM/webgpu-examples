@@ -7,7 +7,7 @@ import { GLTFLoader } from '../../../common/engine/loaders/GLTFLoader.js';
 import { ResizeSystem } from '../../../common/engine/systems/ResizeSystem.js';
 import { UpdateSystem } from '../../../common/engine/systems/UpdateSystem.js';
 
-import { Renderer } from './Renderer.js';
+import { UnlitRenderer } from '../../../common/engine/renderers/UnlitRenderer.js';
 
 const gltfLoader = new GLTFLoader();
 await gltfLoader.load(new URL('../../../common/models/monkey.gltf', import.meta.url));
@@ -16,7 +16,7 @@ const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
 const camera = scene.find(node => node.getComponentOfType(Camera));
 
 const canvas = document.querySelector('canvas');
-const renderer = new Renderer(canvas);
+const renderer = new UnlitRenderer(canvas);
 await renderer.initialize();
 
 function update(t, dt) {
