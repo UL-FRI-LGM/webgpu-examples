@@ -180,22 +180,15 @@ export class UnlitRenderer {
     }
 
     prepareNode(node) {
-        const models = getModels(node);
-        for (const model of models) {
+        if (this.gpuObjects.has(node)) {
+            return this.gpuObjects.get(node);
+        }
+
+        for (const model of getModels(node)) {
             this.prepareModel(model);
         }
         for (const child of node.children) {
             this.prepareNode(child);
-        }
-    }
-
-    prepareModel(model) {
-        if (this.gpuObjects.has(model)) {
-            return this.gpuObjects.get(model);
-        }
-
-        for (const primitive of model.primitives) {
-            this.preparePrimitive(primitive);
         }
 
         const modelUniformBuffer = this.device.createBuffer({
@@ -212,8 +205,14 @@ export class UnlitRenderer {
             ],
         });
 
-        this.gpuObjects.set(model, { modelUniformBuffer, modelBindGroup });
+        this.gpuObjects.set(node, { modelUniformBuffer, modelBindGroup });
         return { modelUniformBuffer, modelBindGroup };
+    }
+
+    prepareModel(model) {
+        for (const primitive of model.primitives) {
+            this.preparePrimitive(primitive);
+        }
     }
 
     preparePrimitive(primitive) {
@@ -364,8 +363,14 @@ export class UnlitRenderer {
         const localMatrix = getLocalModelMatrix(node);
         modelMatrix = mat4.multiply(mat4.create(), modelMatrix, localMatrix);
 
+        const { modelUniformBuffer, modelBindGroup } = this.prepareNode(node);
+        const normalMatrix = createNormalMatrixFromModelMatrix(modelMatrix);
+        this.queue.writeBuffer(modelUniformBuffer, 0, modelMatrix);
+        this.queue.writeBuffer(modelUniformBuffer, 64, normalMatrix);
+        renderPass.setBindGroup(1, modelBindGroup);
+
         for (const model of getModels(node)) {
-            this.renderModel(renderPass, model, modelMatrix);
+            this.renderModel(renderPass, model);
         }
 
         for (const child of node.children) {
@@ -373,15 +378,9 @@ export class UnlitRenderer {
         }
     }
 
-    renderModel(renderPass, model, modelMatrix) {
-        const { modelUniformBuffer, modelBindGroup } = this.prepareModel(model);
-        const normalMatrix = createNormalMatrixFromModelMatrix(modelMatrix);
-        this.queue.writeBuffer(modelUniformBuffer, 0, modelMatrix);
-        this.queue.writeBuffer(modelUniformBuffer, 64, normalMatrix);
-        renderPass.setBindGroup(1, modelBindGroup);
-
+    renderModel(renderPass, model) {
         for (const primitive of model.primitives) {
-            this.renderPrimitive(renderPass, primitive, modelMatrix);
+            this.renderPrimitive(renderPass, primitive);
         }
     }
 
