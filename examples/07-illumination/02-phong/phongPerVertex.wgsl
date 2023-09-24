@@ -1,0 +1,93 @@
+struct VertexInput {
+    @location(0) position : vec3f,
+    @location(1) texcoords : vec2f,
+    @location(2) normal : vec3f,
+}
+
+struct VertexOutput {
+    @builtin(position) position : vec4f,
+    @location(1) texcoords : vec2f,
+    @location(2) diffuseLight : vec3f,
+    @location(3) specularLight : vec3f,
+}
+
+struct FragmentInput {
+    @location(1) texcoords : vec2f,
+    @location(2) diffuseLight : vec3f,
+    @location(3) specularLight : vec3f,
+}
+
+struct FragmentOutput {
+    @location(0) color : vec4f,
+}
+
+struct CameraUniforms {
+    viewMatrix : mat4x4f,
+    projectionMatrix : mat4x4f,
+    position : vec3f,
+}
+
+struct LightUniforms {
+    color : vec3f,
+    position : vec3f,
+    attenuation : vec3f,
+}
+
+struct ModelUniforms {
+    modelMatrix : mat4x4f,
+    normalMatrix : mat3x3f,
+}
+
+struct MaterialUniforms {
+    diffuse : f32,
+    specular : f32,
+    shininess : f32,
+}
+
+@group(0) @binding(0) var<uniform> camera : CameraUniforms;
+@group(1) @binding(0) var<uniform> light : LightUniforms;
+@group(2) @binding(0) var<uniform> model : ModelUniforms;
+@group(3) @binding(0) var<uniform> material : MaterialUniforms;
+@group(3) @binding(1) var uTexture : texture_2d<f32>;
+@group(3) @binding(2) var uSampler : sampler;
+
+@vertex
+fn vertex(input : VertexInput) -> VertexOutput {
+    var output : VertexOutput;
+
+    let surfacePosition = (model.modelMatrix * vec4(input.position, 1)).xyz;
+    let d = distance(surfacePosition, light.position);
+    let attenuation = 1 / dot(light.attenuation, vec3(1, d, d * d));
+
+    let N = normalize(model.normalMatrix * input.normal);
+    let L = normalize(light.position - surfacePosition);
+    let V = normalize(camera.position - surfacePosition);
+    let R = normalize(reflect(-L, N));
+
+    let lambert = max(dot(N, L), 0) * material.diffuse;
+    let phong = pow(max(dot(V, R), 0), material.shininess) * material.specular;
+
+    let diffuseLight = lambert * attenuation * light.color;
+    let specularLight = phong * attenuation * light.color;
+
+    output.position = camera.projectionMatrix * camera.viewMatrix * model.modelMatrix * vec4(input.position, 1);
+    output.texcoords = input.texcoords;
+
+    output.diffuseLight = lambert * attenuation * light.color;
+    output.specularLight = phong * attenuation * light.color;
+
+    return output;
+}
+
+@fragment
+fn fragment(input : FragmentInput) -> FragmentOutput {
+    var output : FragmentOutput;
+
+    const gamma = 2.2;
+    let albedo = pow(textureSample(uTexture, uSampler, input.texcoords).rgb, vec3(gamma));
+    let finalColor = albedo * input.diffuseLight + input.specularLight;
+
+    output.color = pow(vec4(finalColor, 1), vec4(1 / gamma));
+
+    return output;
+}
