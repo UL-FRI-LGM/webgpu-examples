@@ -26,22 +26,33 @@ struct ModelUniforms {
     normalMatrix : mat3x3f,
 }
 
+struct MaterialUniforms {
+    baseFactor : vec4f,
+}
+
 @group(0) @binding(0) var<uniform> camera : CameraUniforms;
+
 @group(1) @binding(0) var<uniform> model : ModelUniforms;
-@group(2) @binding(0) var uTexture : texture_2d<f32>;
-@group(2) @binding(1) var uSampler : sampler;
+
+@group(2) @binding(0) var<uniform> material : MaterialUniforms;
+@group(2) @binding(1) var baseTexture : texture_2d<f32>;
+@group(2) @binding(2) var baseSampler : sampler;
 
 @vertex
 fn vertex(input : VertexInput) -> VertexOutput {
     var output : VertexOutput;
+
     output.position = camera.projectionMatrix * camera.viewMatrix * model.modelMatrix * vec4(input.position, 1);
     output.texcoords = input.texcoords;
+
     return output;
 }
 
 @fragment
 fn fragment(input : FragmentInput) -> FragmentOutput {
     var output : FragmentOutput;
-    output.color = textureSample(uTexture, uSampler, input.texcoords);
+
+    output.color = textureSample(baseTexture, baseSampler, input.texcoords) * material.baseFactor;
+
     return output;
 }
