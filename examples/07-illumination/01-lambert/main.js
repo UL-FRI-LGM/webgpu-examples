@@ -34,7 +34,7 @@ camera.addComponent(new Camera({
     near: 0.1,
     far: 100,
 }));
-camera.addComponent(new OrbitController(camera, canvas));
+camera.addComponent(new OrbitController(camera, canvas, { distance: 3 }));
 scene.addChild(camera);
 
 const light = new Node();

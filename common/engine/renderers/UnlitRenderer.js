@@ -170,10 +170,10 @@ export class UnlitRenderer extends BaseRenderer {
         });
         this.renderPass.setPipeline(this.pipeline);
 
-        const cameraCamera = camera.getComponentOfType(Camera);
+        const cameraComponent = camera.getComponentOfType(Camera);
         const viewMatrix = getGlobalViewMatrix(camera);
         const projectionMatrix = getProjectionMatrix(camera);
-        const { cameraUniformBuffer, cameraBindGroup } = this.prepareCamera(cameraCamera);
+        const { cameraUniformBuffer, cameraBindGroup } = this.prepareCamera(cameraComponent);
         this.device.queue.writeBuffer(cameraUniformBuffer, 0, viewMatrix);
         this.device.queue.writeBuffer(cameraUniformBuffer, 64, projectionMatrix);
         this.renderPass.setBindGroup(0, cameraBindGroup);

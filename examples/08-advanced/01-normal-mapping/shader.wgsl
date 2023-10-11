@@ -35,22 +35,32 @@ struct ModelUniforms {
     normalMatrix : mat3x3f,
 }
 
+struct MaterialUniforms {
+    baseFactor : vec4f,
+    normalFactor : f32,
+}
+
 @group(0) @binding(0) var<uniform> camera : CameraUniforms;
+
 @group(1) @binding(0) var<uniform> model : ModelUniforms;
-@group(2) @binding(0) var uTexture : texture_2d<f32>;
-@group(2) @binding(1) var uSampler : sampler;
-@group(2) @binding(2) var uNormalTexture : texture_2d<f32>;
-@group(2) @binding(3) var uNormalSampler : sampler;
+
+@group(2) @binding(0) var<uniform> material : MaterialUniforms;
+@group(2) @binding(1) var uBaseTexture : texture_2d<f32>;
+@group(2) @binding(2) var uBaseSampler : sampler;
+@group(2) @binding(3) var uNormalTexture : texture_2d<f32>;
+@group(2) @binding(4) var uNormalSampler : sampler;
 
 @vertex
 fn vertex(input : VertexInput) -> VertexOutput {
     var output : VertexOutput;
+
     let position = model.modelMatrix * vec4(input.position, 1);
     output.clipPosition = camera.projectionMatrix * camera.viewMatrix * position;
     output.position = position.xyz;
     output.texcoords = input.texcoords;
     output.normal = model.normalMatrix * input.normal;
     output.tangent = model.normalMatrix * input.tangent;
+
     return output;
 }
 
@@ -58,10 +68,9 @@ fn vertex(input : VertexInput) -> VertexOutput {
 fn fragment(input : FragmentInput) -> FragmentOutput {
     var output : FragmentOutput;
 
-    let baseColor = textureSample(uTexture, uSampler, input.texcoords);
+    let baseColor = textureSample(uBaseTexture, uBaseSampler, input.texcoords);
     let normalColor = textureSample(uNormalTexture, uNormalSampler, input.texcoords);
-    const normalScale = 1.0;
-    let scaledNormal = normalize((normalColor.xyz * 2 - 1) * vec3(normalScale, normalScale, 1));
+    let scaledNormal = normalize((normalColor.xyz * 2 - 1) * vec3(vec2(material.normalFactor), 1));
 
     let normal = normalize(input.normal);
     let tangent = normalize(input.tangent);
@@ -79,5 +88,6 @@ fn fragment(input : FragmentInput) -> FragmentOutput {
     let diffuse = max(dot(N, L), 0.0);
 
     output.color = vec4(baseColor.xyz * diffuse, 1);
+
     return output;
 }

@@ -33,6 +33,7 @@ struct ModelUniforms {
 }
 
 struct MaterialUniforms {
+    baseFactor : vec4f,
     reflectance : f32,
     transmittance : f32,
     ior : f32,

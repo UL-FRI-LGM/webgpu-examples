@@ -39,6 +39,7 @@ struct ModelUniforms {
 }
 
 struct MaterialUniforms {
+    baseFactor : vec4f,
     diffuse : f32,
     specular : f32,
     shininess : f32,

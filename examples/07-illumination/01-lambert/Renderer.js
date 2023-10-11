@@ -2,7 +2,8 @@ import { vec3, mat3, mat4 } from '../../../lib/gl-matrix-module.js';
 
 import * as WebGPU from '../../../common/engine/WebGPU.js';
 
-import { Light } from './Light.js';
+import { Camera } from '../../../common/engine/core.js';
+import { BaseRenderer } from '../../../common/engine/renderers/BaseRenderer.js';
 
 import {
     getLocalModelMatrix,
@@ -15,8 +16,10 @@ import {
     createVertexBuffer,
 } from '../../../common/engine/core/VertexUtils.js';
 
+import { Light } from './Light.js';
+
 const vertexBufferLayout = {
-    arrayStride: 48,
+    arrayStride: 32,
     attributes: [
         {
             name: 'position',
@@ -34,12 +37,6 @@ const vertexBufferLayout = {
             name: 'normal',
             shaderLocation: 2,
             offset: 20,
-            format: 'float32x3',
-        },
-        {
-            name: 'tangent',
-            shaderLocation: 3,
-            offset: 32,
             format: 'float32x3',
         },
     ],
@@ -80,53 +77,30 @@ const materialBindGroupLayout = {
         {
             binding: 0,
             visibility: GPUShaderStage.FRAGMENT,
-            texture: {},
+            buffer: {},
         },
         {
             binding: 1,
+            visibility: GPUShaderStage.FRAGMENT,
+            texture: {},
+        },
+        {
+            binding: 2,
             visibility: GPUShaderStage.FRAGMENT,
             sampler: {},
         },
     ],
 };
 
-export async function initializeWebGPU(canvas) {
-    const adapter = await navigator.gpu.requestAdapter();
-    const device = await adapter.requestDevice();
-    const queue = device.queue;
-    const context = canvas.getContext('webgpu');
-    const format = navigator.gpu.getPreferredCanvasFormat();
-    context.configure({ device, format });
-
-    return { adapter, device, queue, context, format };
-}
-
-function createNormalMatrixFromModelMatrix(modelMatrix) {
-    const normalMatrixMat3 = mat3.normalFromMat4(mat3.create(), modelMatrix);
-    const normalMatrix = mat4.create();
-    normalMatrix[0] = normalMatrixMat3[0];
-    normalMatrix[1] = normalMatrixMat3[1];
-    normalMatrix[2] = normalMatrixMat3[2];
-    normalMatrix[4] = normalMatrixMat3[3];
-    normalMatrix[5] = normalMatrixMat3[4];
-    normalMatrix[6] = normalMatrixMat3[5];
-    normalMatrix[8] = normalMatrixMat3[6];
-    normalMatrix[9] = normalMatrixMat3[7];
-    normalMatrix[10] = normalMatrixMat3[8];
-    return normalMatrix;
-}
-
-export class Renderer {
+export class Renderer extends BaseRenderer {
 
     constructor(canvas) {
-        this.canvas = canvas;
-        this.gpuObjects = new WeakMap();
-
+        super(canvas);
         this.perFragment = true;
     }
 
     async initialize() {
-        Object.assign(this, await initializeWebGPU(this.canvas));
+        await super.initialize();
 
         const codePerFragment = await fetch('lambertPerFragment.wgsl').then(response => response.text());
         const codePerVertex = await fetch('lambertPerVertex.wgsl').then(response => response.text());
@@ -187,41 +161,10 @@ export class Renderer {
         });
 
         this.recreateDepthTexture();
-
-        this.cameraUniformBuffer = this.device.createBuffer({
-            size: 128,
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-        });
-        this.cameraBindGroup = this.device.createBindGroup({
-            layout: this.cameraBindGroupLayout,
-            entries: [
-                {
-                    binding: 0,
-                    resource: { buffer: this.cameraUniformBuffer },
-                },
-            ],
-        });
-
-        this.lightUniformBuffer = this.device.createBuffer({
-            size: 32,
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-        });
-        this.lightBindGroup = this.device.createBindGroup({
-            layout: this.lightBindGroupLayout,
-            entries: [
-                {
-                    binding: 0,
-                    resource: { buffer: this.lightUniformBuffer },
-                },
-            ],
-        });
     }
 
     recreateDepthTexture() {
-        if (this.depthTexture) {
-            this.depthTexture.destroy();
-        }
-
+        this.depthTexture?.destroy();
         this.depthTexture = this.device.createTexture({
             format: 'depth24plus',
             size: [this.canvas.width, this.canvas.height],
@@ -234,44 +177,65 @@ export class Renderer {
             return this.gpuObjects.get(node);
         }
 
-        for (const model of getModels(node)) {
-            this.prepareModel(model);
-        }
-        for (const child of node.children) {
-            this.prepareNode(child);
-        }
-
         const modelUniformBuffer = this.device.createBuffer({
             size: 128,
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
         });
+
         const modelBindGroup = this.device.createBindGroup({
             layout: this.modelBindGroupLayout,
             entries: [
-                {
-                    binding: 0,
-                    resource: { buffer: modelUniformBuffer },
-                },
+                { binding: 0, resource: { buffer: modelUniformBuffer } },
             ],
         });
 
-        this.gpuObjects.set(node, { modelUniformBuffer, modelBindGroup });
-        return { modelUniformBuffer, modelBindGroup };
+        const gpuObjects = { modelUniformBuffer, modelBindGroup };
+        this.gpuObjects.set(node, gpuObjects);
+        return gpuObjects;
     }
 
-    prepareModel(model) {
-        for (const primitive of model.primitives) {
-            this.preparePrimitive(primitive);
+    prepareCamera(camera) {
+        if (this.gpuObjects.has(camera)) {
+            return this.gpuObjects.get(camera);
         }
+
+        const cameraUniformBuffer = this.device.createBuffer({
+            size: 128,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        });
+
+        const cameraBindGroup = this.device.createBindGroup({
+            layout: this.cameraBindGroupLayout,
+            entries: [
+                { binding: 0, resource: { buffer: cameraUniformBuffer } },
+            ],
+        });
+
+        const gpuObjects = { cameraUniformBuffer, cameraBindGroup };
+        this.gpuObjects.set(camera, gpuObjects);
+        return gpuObjects;
     }
 
-    preparePrimitive(primitive) {
-        if (primitive.mesh) {
-            this.prepareMesh(primitive.mesh);
+    prepareLight(light) {
+        if (this.gpuObjects.has(light)) {
+            return this.gpuObjects.get(light);
         }
-        if (primitive.material) {
-            this.prepareMaterial(primitive.material);
-        }
+
+        const lightUniformBuffer = this.device.createBuffer({
+            size: 32,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        });
+
+        const lightBindGroup = this.device.createBindGroup({
+            layout: this.lightBindGroupLayout,
+            entries: [
+                { binding: 0, resource: { buffer: lightUniformBuffer } },
+            ],
+        });
+
+        const gpuObjects = { lightUniformBuffer, lightBindGroup };
+        this.gpuObjects.set(light, gpuObjects);
+        return gpuObjects;
     }
 
     prepareMaterial(material) {
@@ -279,96 +243,26 @@ export class Renderer {
             return this.gpuObjects.get(material);
         }
 
-        if (material.baseTexture) {
-            this.prepareTexture(material.baseTexture);
-        }
-        if (material.emissionTexture) {
-            this.prepareTexture(material.emissionTexture);
-        }
-        if (material.normalTexture) {
-            this.prepareTexture(material.normalTexture);
-        }
-        if (material.occlusionTexture) {
-            this.prepareTexture(material.occlusionTexture);
-        }
-        if (material.roughnessTexture) {
-            this.prepareTexture(material.roughnessTexture);
-        }
-        if (material.metalnessTexture) {
-            this.prepareTexture(material.metalnessTexture);
-        }
+        const baseTexture = this.prepareImage(material.baseTexture.image).gpuTexture;
+        const baseSampler = this.prepareSampler(material.baseTexture.sampler).gpuSampler;
 
-        const baseTexture = this.prepareImage(material.baseTexture.image);
-        const baseSampler = this.prepareSampler(material.baseTexture.sampler);
+        const materialUniformBuffer = this.device.createBuffer({
+            size: 16,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        });
 
         const materialBindGroup = this.device.createBindGroup({
             layout: this.materialBindGroupLayout,
             entries: [
-                {
-                    binding: 0,
-                    resource: baseTexture.createView(),
-                },
-                {
-                    binding: 1,
-                    resource: baseSampler,
-                },
+                { binding: 0, resource: { buffer: materialUniformBuffer } },
+                { binding: 1, resource: baseTexture.createView() },
+                { binding: 2, resource: baseSampler },
             ],
         });
 
-        this.gpuObjects.set(material, materialBindGroup);
-        return materialBindGroup;
-    }
-
-    prepareTexture(texture) {
-        if (texture.image) {
-            this.prepareImage(texture.image);
-        }
-        if (texture.sampler) {
-            this.prepareSampler(texture.sampler);
-        }
-    }
-
-    prepareImage(image) {
-        if (this.gpuObjects.has(image)) {
-            return this.gpuObjects.get(image);
-        }
-
-        const gpuTexture = WebGPU.createTexture(this.device, { source: image });
-
-        this.gpuObjects.set(image, gpuTexture);
-        return gpuTexture;
-    }
-
-    prepareSampler(sampler) {
-        if (this.gpuObjects.has(sampler)) {
-            return this.gpuObjects.get(sampler);
-        }
-
-        const gpuSampler = this.device.createSampler(sampler);
-
-        this.gpuObjects.set(sampler, gpuSampler);
-        return gpuSampler;
-    }
-
-    prepareMesh(mesh) {
-        if (this.gpuObjects.has(mesh)) {
-            return this.gpuObjects.get(mesh);
-        }
-
-        const vertexBufferArrayBuffer = createVertexBuffer(mesh.vertices, vertexBufferLayout);
-        const vertexBuffer = WebGPU.createBuffer(this.device, {
-            data: vertexBufferArrayBuffer,
-            usage: GPUBufferUsage.VERTEX,
-        });
-
-        const indexBufferArrayBuffer = new Uint32Array(mesh.indices).buffer;
-        const indexBuffer = WebGPU.createBuffer(this.device, {
-            data: indexBufferArrayBuffer,
-            usage: GPUBufferUsage.INDEX,
-        });
-
-        this.gpuObjects.set(mesh, { vertexBuffer, indexBuffer });
-        return { vertexBuffer, indexBuffer };
+        const gpuObjects = { materialUniformBuffer, materialBindGroup };
+        this.gpuObjects.set(material, gpuObjects);
+        return gpuObjects;
     }
 
     render(scene, camera, light) {
@@ -377,7 +271,7 @@ export class Renderer {
         }
 
         const encoder = this.device.createCommandEncoder();
-        const renderPass = encoder.beginRenderPass({
+        this.renderPass = encoder.beginRenderPass({
             colorAttachments: [
                 {
                     view: this.context.getCurrentTexture().createView(),
@@ -393,64 +287,65 @@ export class Renderer {
                 depthStoreOp: 'discard',
             },
         });
-        renderPass.setPipeline(this.perFragment ? this.pipelinePerFragment : this.pipelinePerVertex);
+        this.renderPass.setPipeline(this.perFragment ? this.pipelinePerFragment : this.pipelinePerVertex);
 
+        const cameraComponent = camera.getComponentOfType(Camera);
         const viewMatrix = getGlobalViewMatrix(camera);
         const projectionMatrix = getProjectionMatrix(camera);
-
-        this.queue.writeBuffer(this.cameraUniformBuffer, 0, viewMatrix);
-        this.queue.writeBuffer(this.cameraUniformBuffer, 64, projectionMatrix);
-
-        renderPass.setBindGroup(0, this.cameraBindGroup);
+        const { cameraUniformBuffer, cameraBindGroup } = this.prepareCamera(cameraComponent);
+        this.device.queue.writeBuffer(cameraUniformBuffer, 0, viewMatrix);
+        this.device.queue.writeBuffer(cameraUniformBuffer, 64, projectionMatrix);
+        this.renderPass.setBindGroup(0, cameraBindGroup);
 
         const lightComponent = light.getComponentOfType(Light);
         const lightColor = vec3.scale(vec3.create(), lightComponent.color, 1 / 255);
         const lightDirection = vec3.normalize(vec3.create(), lightComponent.direction);
-        this.queue.writeBuffer(this.lightUniformBuffer, 0, lightColor);
-        this.queue.writeBuffer(this.lightUniformBuffer, 16, lightDirection);
+        const { lightUniformBuffer, lightBindGroup } = this.prepareLight(lightComponent);
+        this.device.queue.writeBuffer(lightUniformBuffer, 0, lightColor);
+        this.device.queue.writeBuffer(lightUniformBuffer, 16, lightDirection);
+        this.renderPass.setBindGroup(1, lightBindGroup);
 
-        renderPass.setBindGroup(1, this.lightBindGroup);
+        this.renderNode(scene);
 
-        this.renderNode(renderPass, scene);
-
-        renderPass.end();
-        this.queue.submit([encoder.finish()]);
+        this.renderPass.end();
+        this.device.queue.submit([encoder.finish()]);
     }
 
-    renderNode(renderPass, node, modelMatrix = mat4.create()) {
+    renderNode(node, modelMatrix = mat4.create()) {
         const localMatrix = getLocalModelMatrix(node);
         modelMatrix = mat4.multiply(mat4.create(), modelMatrix, localMatrix);
 
         const { modelUniformBuffer, modelBindGroup } = this.prepareNode(node);
-        const normalMatrix = createNormalMatrixFromModelMatrix(modelMatrix);
-        this.queue.writeBuffer(modelUniformBuffer, 0, modelMatrix);
-        this.queue.writeBuffer(modelUniformBuffer, 64, normalMatrix);
-        renderPass.setBindGroup(2, modelBindGroup);
+        const normalMatrix = this.mat3tomat4(mat3.normalFromMat4(mat3.create(), modelMatrix));
+        this.device.queue.writeBuffer(modelUniformBuffer, 0, modelMatrix);
+        this.device.queue.writeBuffer(modelUniformBuffer, 64, normalMatrix);
+        this.renderPass.setBindGroup(2, modelBindGroup);
 
         for (const model of getModels(node)) {
-            this.renderModel(renderPass, model);
+            this.renderModel(model);
         }
 
         for (const child of node.children) {
-            this.renderNode(renderPass, child, modelMatrix);
+            this.renderNode(child, modelMatrix);
         }
     }
 
-    renderModel(renderPass, model) {
+    renderModel(model) {
         for (const primitive of model.primitives) {
-            this.renderPrimitive(renderPass, primitive);
+            this.renderPrimitive(primitive);
         }
     }
 
-    renderPrimitive(renderPass, primitive) {
-        const materialBindGroup = this.prepareMaterial(primitive.material);
-        renderPass.setBindGroup(3, materialBindGroup);
+    renderPrimitive(primitive) {
+        const { materialUniformBuffer, materialBindGroup } = this.prepareMaterial(primitive.material);
+        this.device.queue.writeBuffer(materialUniformBuffer, 0, new Float32Array(primitive.material.baseFactor));
+        this.renderPass.setBindGroup(3, materialBindGroup);
 
-        const { vertexBuffer, indexBuffer } = this.prepareMesh(primitive.mesh);
-        renderPass.setVertexBuffer(0, vertexBuffer);
-        renderPass.setIndexBuffer(indexBuffer, 'uint32');
+        const { vertexBuffer, indexBuffer } = this.prepareMesh(primitive.mesh, vertexBufferLayout);
+        this.renderPass.setVertexBuffer(0, vertexBuffer);
+        this.renderPass.setIndexBuffer(indexBuffer, 'uint32');
 
-        renderPass.drawIndexed(primitive.mesh.indices.length);
+        this.renderPass.drawIndexed(primitive.mesh.indices.length);
     }
 
 }
