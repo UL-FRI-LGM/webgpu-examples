@@ -1,15 +1,15 @@
 import { mat3, mat4 } from '../../../lib/gl-matrix-module.js';
 
-import * as WebGPU from '../../../common/engine/WebGPU.js';
+import * as WebGPU from '../WebGPU.js';
 
-import { Camera } from '../../../common/engine/core.js';
+import { Camera } from '../core.js';
 
 import {
     getLocalModelMatrix,
     getGlobalViewMatrix,
     getProjectionMatrix,
     getModels,
-} from '../../../common/engine/core/SceneUtils.js';
+} from '../core/SceneUtils.js';
 
 import { BaseRenderer } from './BaseRenderer.js';
 
