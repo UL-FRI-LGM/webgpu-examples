@@ -17,7 +17,7 @@ import { quat } from '../../../lib/gl-matrix-module.js';
 import { ImageLoader } from '../../../common/engine/loaders/ImageLoader.js';
 import { GLTFLoader } from '../../../common/engine/loaders/GLTFLoader.js';
 
-import { OrbitController } from '../../../common/engine/controllers/OrbitController.js';
+import { TurntableController } from '../../../common/engine/controllers/TurntableController.js';
 
 import { ResizeSystem } from '../../../common/engine/systems/ResizeSystem.js';
 import { UpdateSystem } from '../../../common/engine/systems/UpdateSystem.js';
@@ -33,7 +33,7 @@ await gltfLoader.load(new URL('../../../common/models/monkey.gltf', import.meta.
 
 const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
 const camera = gltfLoader.loadNode('Camera');
-camera.addComponent(new OrbitController(camera, canvas, { distance: 7 }));
+camera.addComponent(new TurntableController(camera, canvas, { distance: 7 }));
 
 const model = gltfLoader.loadNode('Suzanne');
 const material = model.getComponentOfType(Model).primitives[0].material;

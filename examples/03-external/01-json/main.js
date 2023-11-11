@@ -16,7 +16,7 @@ import {
     Transform,
 } from '../../../common/engine/core.js';
 
-import { OrbitController } from '../../../common/engine/controllers/OrbitController.js';
+import { TurntableController } from '../../../common/engine/controllers/TurntableController.js';
 
 const canvas = document.querySelector('canvas');
 const renderer = new UnlitRenderer(canvas);
@@ -49,7 +49,9 @@ model.addComponent(new Model({
 const camera = new Node();
 camera.addComponent(new Transform());
 camera.addComponent(new Camera());
-camera.addComponent(new OrbitController(camera, canvas));
+camera.addComponent(new TurntableController(camera, canvas, {
+    distance: 5,
+}));
 
 const scene = new Node();
 scene.addChild(model);

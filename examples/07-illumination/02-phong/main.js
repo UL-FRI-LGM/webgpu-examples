@@ -6,7 +6,7 @@ import { UpdateSystem } from '../../../common/engine/systems/UpdateSystem.js';
 import { ImageLoader } from '../../../common/engine/loaders/ImageLoader.js';
 import { JSONLoader } from '../../../common/engine/loaders/JSONLoader.js';
 
-import { OrbitController } from '../../../common/engine/controllers/OrbitController.js';
+import { TurntableController } from '../../../common/engine/controllers/TurntableController.js';
 
 import {
     Camera,
@@ -34,7 +34,7 @@ camera.addComponent(new Camera({
     near: 0.1,
     far: 100,
 }));
-camera.addComponent(new OrbitController(camera, canvas, { distance: 3 }));
+camera.addComponent(new TurntableController(camera, canvas, { distance: 3 }));
 scene.addChild(camera);
 
 const light = new Node();

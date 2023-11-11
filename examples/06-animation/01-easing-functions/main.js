@@ -5,7 +5,7 @@ import { UpdateSystem } from '../../../common/engine/systems/UpdateSystem.js';
 
 import { GLTFLoader } from '../../../common/engine/loaders/GLTFLoader.js';
 import { UnlitRenderer } from '../../../common/engine/renderers/UnlitRenderer.js';
-import { OrbitController } from '../../../common/engine/controllers/OrbitController.js';
+import { TurntableController } from '../../../common/engine/controllers/TurntableController.js';
 import { getGlobalModelMatrix } from '../../../common/engine/core/SceneUtils.js';
 import { Camera, Transform } from '../../../common/engine/core.js';
 
@@ -20,7 +20,7 @@ await loader.load('scene/scene.gltf');
 
 const scene = loader.loadScene(loader.defaultScene);
 const camera = loader.loadNode('Camera');
-camera.addComponent(new OrbitController(camera, canvas, {
+camera.addComponent(new TurntableController(camera, canvas, {
     distance: 10,
     pitch: -0.1,
 }));
@@ -41,7 +41,7 @@ function update(t, dt) {
         for (const component of node.components) {
             component.update?.(t, dt);
         }
-    })
+    });
 }
 
 function render() {
