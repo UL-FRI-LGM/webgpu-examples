@@ -55,7 +55,7 @@ export class Node {
     }
 
     removeComponentsOfType(type) {
-        this.components = this.components.filter(component => !(components instanceof type));
+        this.components = this.components.filter(component => !(component instanceof type));
     }
 
     getComponentOfType(type) {
