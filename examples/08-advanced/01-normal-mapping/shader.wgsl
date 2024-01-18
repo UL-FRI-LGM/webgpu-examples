@@ -74,7 +74,7 @@ fn fragment(input : FragmentInput) -> FragmentOutput {
 
     let normal = normalize(input.normal);
     let tangent = normalize(input.tangent);
-    let bitangent = normalize(cross(tangent, normal));
+    let bitangent = normalize(cross(normal, tangent));
 
     let tangentMatrix = mat3x3(tangent, bitangent, normal);
     let transformedNormal = tangentMatrix * scaledNormal;

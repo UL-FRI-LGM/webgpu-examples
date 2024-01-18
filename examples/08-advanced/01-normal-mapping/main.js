@@ -39,7 +39,7 @@ material.baseTexture = new Texture({
 });
 
 material.normalTexture = new Texture({
-    image: await new ImageLoader().load('../../../common/images/crate-normal.png'),
+    image: await new ImageLoader().load('../../../common/models/monkey-normal.webp'),
     sampler: new Sampler(),
 });
 
