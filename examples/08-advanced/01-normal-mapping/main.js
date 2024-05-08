@@ -15,20 +15,23 @@ import { quat } from 'glm';
 import { ImageLoader } from 'engine/loaders/ImageLoader.js';
 import { GLTFLoader } from 'engine/loaders/GLTFLoader.js';
 
+import { TurntableController } from 'engine/controllers/TurntableController.js';
+
 import { ResizeSystem } from 'engine/systems/ResizeSystem.js';
 import { UpdateSystem } from 'engine/systems/UpdateSystem.js';
 
 import { Renderer } from './Renderer.js';
 
-const gltfLoader = new GLTFLoader();
-await gltfLoader.load(new URL('../../../common/models/monkey.gltf', import.meta.url));
-
-const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
-const camera = gltfLoader.loadNode('Camera');
-
 const canvas = document.querySelector('canvas');
 const renderer = new Renderer(canvas);
 await renderer.initialize();
+
+const gltfLoader = new GLTFLoader();
+await gltfLoader.load(new URL('../../../models/monkey/monkey.gltf', import.meta.url));
+
+const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
+const camera = gltfLoader.loadNode('Camera');
+camera.addComponent(new TurntableController(camera, canvas, { distance: 7 }));
 
 const model = gltfLoader.loadNode('Suzanne');
 const material = model.getComponentOfType(Model).primitives[0].material;
@@ -39,7 +42,7 @@ material.baseTexture = new Texture({
 });
 
 material.normalTexture = new Texture({
-    image: await new ImageLoader().load('../../../common/models/monkey-normal.webp'),
+    image: await new ImageLoader().load('../../../models/monkey/monkey-normal.webp'),
     sampler: new Sampler(),
 });
 

@@ -23,9 +23,9 @@ const renderer = new UnlitRenderer(canvas);
 await renderer.initialize();
 
 const loader = new JSONLoader();
-const mesh = await loader.loadMesh('../../../common/models/monkey.json');
+const mesh = await loader.loadMesh('../../../models/monkey/monkey.json');
 
-const image = await fetch('../../../common/images/grass.png')
+const image = await fetch('../../../models/monkey/base.png')
     .then(response => response.blob())
     .then(blob => createImageBitmap(blob));
 

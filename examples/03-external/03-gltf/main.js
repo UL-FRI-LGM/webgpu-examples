@@ -11,7 +11,7 @@ const renderer = new UnlitRenderer(canvas);
 await renderer.initialize();
 
 const loader = new GLTFLoader();
-await loader.load('../../../common/models/monkey.gltf');
+await loader.load('../../../models/monkey/monkey.gltf');
 
 const scene = loader.loadScene(loader.defaultScene);
 if (!scene) {

@@ -10,7 +10,7 @@ import { UpdateSystem } from 'engine/systems/UpdateSystem.js';
 import { UnlitRenderer } from 'engine/renderers/UnlitRenderer.js';
 
 const gltfLoader = new GLTFLoader();
-await gltfLoader.load(new URL('../../../common/models/monkey.gltf', import.meta.url));
+await gltfLoader.load(new URL('../../../models/monkey/monkey.gltf', import.meta.url));
 
 const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
 const camera = scene.find(node => node.getComponentOfType(Camera));

@@ -46,7 +46,7 @@ scene.addChild(light);
 
 const material = new Material({
     baseTexture: new Texture({
-        image: await new ImageLoader().load('../../../common/images/grass.png'),
+        image: await new ImageLoader().load('../../../models/monkey/base.png'),
         sampler: new Sampler({
             minFilter: 'nearest',
             magFilter: 'nearest',
@@ -62,7 +62,7 @@ const model = new Node();
 model.addComponent(new Model({
     primitives: [
         new Primitive({
-            mesh: await new JSONLoader().loadMesh('../../../common/models/monkey.json'),
+            mesh: await new JSONLoader().loadMesh('../../../models/monkey/monkey.json'),
             material,
         }),
     ],

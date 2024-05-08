@@ -29,7 +29,7 @@ const renderer = new Renderer(canvas);
 await renderer.initialize();
 
 const gltfLoader = new GLTFLoader();
-await gltfLoader.load(new URL('../../../common/models/monkey.gltf', import.meta.url));
+await gltfLoader.load(new URL('../../../models/monkey/monkey.gltf', import.meta.url));
 
 const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
 const camera = gltfLoader.loadNode('Camera');
@@ -40,7 +40,7 @@ const material = model.getComponentOfType(Model).primitives[0].material;
 
 const imageLoader = new ImageLoader();
 material.baseTexture = new Texture({
-    image: await imageLoader.load('../../../common/images/grass.png'),
+    image: await imageLoader.load('../../../models/monkey/base.png'),
     sampler: new Sampler(),
 });
 
@@ -50,12 +50,12 @@ material.ior = 0.75;
 material.effect = 0;
 
 const environmentImages = await Promise.all([
-    '../../../common/images/px.webp',
-    '../../../common/images/nx.webp',
-    '../../../common/images/py.webp',
-    '../../../common/images/ny.webp',
-    '../../../common/images/pz.webp',
-    '../../../common/images/nz.webp',
+    'px.webp',
+    'nx.webp',
+    'py.webp',
+    'ny.webp',
+    'pz.webp',
+    'nz.webp',
 ].map(url => imageLoader.load(url)));
 renderer.setEnvironment(environmentImages);
 

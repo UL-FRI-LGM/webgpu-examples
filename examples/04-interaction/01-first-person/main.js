@@ -45,10 +45,10 @@ floor.addComponent(new Transform({
 floor.addComponent(new Model({
     primitives: [
         new Primitive({
-            mesh: await new JSONLoader().loadMesh('../../../common/models/floor.json'),
+            mesh: await new JSONLoader().loadMesh('../../../models/floor/floor.json'),
             material: new Material({
                 baseTexture: new Texture({
-                    image: await new ImageLoader().load('../../../common/images/grass.png'),
+                    image: await new ImageLoader().load('../../../models/floor/grass.png'),
                     sampler: new Sampler({
                         minFilter: 'nearest',
                         magFilter: 'nearest',
