@@ -1,8 +1,8 @@
-import { ResizeSystem } from '../../../common/engine/systems/ResizeSystem.js';
-import { UpdateSystem } from '../../../common/engine/systems/UpdateSystem.js';
+import { ResizeSystem } from 'engine/systems/ResizeSystem.js';
+import { UpdateSystem } from 'engine/systems/UpdateSystem.js';
 
-import { JSONLoader } from '../../../common/engine/loaders/JSONLoader.js';
-import { UnlitRenderer } from '../../../common/engine/renderers/UnlitRenderer.js';
+import { JSONLoader } from 'engine/loaders/JSONLoader.js';
+import { UnlitRenderer } from 'engine/renderers/UnlitRenderer.js';
 
 import {
     Camera,
@@ -14,9 +14,9 @@ import {
     Sampler,
     Texture,
     Transform,
-} from '../../../common/engine/core.js';
+} from 'engine/core.js';
 
-import { TurntableController } from '../../../common/engine/controllers/TurntableController.js';
+import { TurntableController } from 'engine/controllers/TurntableController.js';
 
 const canvas = document.querySelector('canvas');
 const renderer = new UnlitRenderer(canvas);

@@ -1,9 +1,9 @@
-import { vec3, mat3, mat4 } from '../../../lib/gl-matrix-module.js';
+import { vec3, mat3, mat4 } from 'glm';
 
-import * as WebGPU from '../../../common/engine/WebGPU.js';
+import * as WebGPU from 'engine/WebGPU.js';
 
-import { Camera } from '../../../common/engine/core.js';
-import { BaseRenderer } from '../../../common/engine/renderers/BaseRenderer.js';
+import { Camera } from 'engine/core.js';
+import { BaseRenderer } from 'engine/renderers/BaseRenderer.js';
 
 import {
     getLocalModelMatrix,
@@ -11,11 +11,11 @@ import {
     getGlobalViewMatrix,
     getProjectionMatrix,
     getModels,
-} from '../../../common/engine/core/SceneUtils.js';
+} from 'engine/core/SceneUtils.js';
 
 import {
     createVertexBuffer,
-} from '../../../common/engine/core/VertexUtils.js';
+} from 'engine/core/VertexUtils.js';
 
 import { Light } from './Light.js';
 

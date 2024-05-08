@@ -1,4 +1,4 @@
-import { GUI } from '../../../lib/dat.gui.module.js';
+import { GUI } from 'dat';
 
 import {
     Camera,
@@ -10,17 +10,17 @@ import {
     Texture,
     Transform,
     Vertex,
-} from '../../../common/engine/core.js';
+} from 'engine/core.js';
 
-import { quat } from '../../../lib/gl-matrix-module.js';
+import { quat } from 'glm';
 
-import { ImageLoader } from '../../../common/engine/loaders/ImageLoader.js';
-import { GLTFLoader } from '../../../common/engine/loaders/GLTFLoader.js';
+import { ImageLoader } from 'engine/loaders/ImageLoader.js';
+import { GLTFLoader } from 'engine/loaders/GLTFLoader.js';
 
-import { TurntableController } from '../../../common/engine/controllers/TurntableController.js';
+import { TurntableController } from 'engine/controllers/TurntableController.js';
 
-import { ResizeSystem } from '../../../common/engine/systems/ResizeSystem.js';
-import { UpdateSystem } from '../../../common/engine/systems/UpdateSystem.js';
+import { ResizeSystem } from 'engine/systems/ResizeSystem.js';
+import { UpdateSystem } from 'engine/systems/UpdateSystem.js';
 
 import { Renderer } from './Renderer.js';
 

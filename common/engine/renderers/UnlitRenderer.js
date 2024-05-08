@@ -1,4 +1,4 @@
-import { mat3, mat4 } from '../../../lib/gl-matrix-module.js';
+import { mat3, mat4 } from 'glm';
 
 import * as WebGPU from '../WebGPU.js';
 

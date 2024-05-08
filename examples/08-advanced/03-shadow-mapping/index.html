@@ -3,7 +3,15 @@
 <head>
     <meta charset="utf-8">
     <title>Shadow mapping</title>
-    <script src="../../../lib/gl-matrix-min.js"></script>
+    <script type="importmap">
+    {
+        "imports": {
+            "engine/": "../../../engine/",
+            "dat": "../../../lib/dat.js",
+            "glm": "../../../lib/glm.js"
+        }
+    }
+    </script>
     <script type="module" src="main.js"></script>
     <link rel="stylesheet" href="../../../common/style.css">
 </head>

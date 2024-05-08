@@ -1,4 +1,4 @@
-import { quat, vec3, vec4, mat3, mat4 } from '../../../lib/gl-matrix-module.js';
+import { quat, vec3, vec4, mat3, mat4 } from 'glm';
 
 export function transformVertex(vertex, matrix,
     normalMatrix = mat3.normalFromMat4(mat3.create(), matrix),

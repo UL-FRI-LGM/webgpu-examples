@@ -1,4 +1,4 @@
-import { GUI } from '../../../lib/dat.gui.module.js';
+import { GUI } from 'dat';
 
 const adapter = await navigator.gpu.requestAdapter();
 const device = await adapter.requestDevice();

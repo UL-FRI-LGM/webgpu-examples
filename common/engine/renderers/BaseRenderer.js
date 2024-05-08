@@ -1,8 +1,8 @@
-import { mat4 } from '../../../lib/gl-matrix-module.js';
+import { mat4 } from 'glm';
 
-import * as WebGPU from '../../../common/engine/WebGPU.js';
+import * as WebGPU from 'engine/WebGPU.js';
 
-import { createVertexBuffer } from '../../../common/engine/core/VertexUtils.js';
+import { createVertexBuffer } from 'engine/core/VertexUtils.js';
 
 export class BaseRenderer {
 

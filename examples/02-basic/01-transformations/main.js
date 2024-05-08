@@ -1,9 +1,9 @@
-import { mat4 } from '../../../lib/gl-matrix-module.js';
+import { mat4 } from 'glm';
 
-import * as WebGPU from '../../../common/engine/WebGPU.js';
+import * as WebGPU from 'engine/WebGPU.js';
 
-import { ResizeSystem } from '../../../common/engine/systems/ResizeSystem.js';
-import { UpdateSystem } from '../../../common/engine/systems/UpdateSystem.js';
+import { ResizeSystem } from 'engine/systems/ResizeSystem.js';
+import { UpdateSystem } from 'engine/systems/UpdateSystem.js';
 
 const adapter = await navigator.gpu.requestAdapter();
 const device = await adapter.requestDevice();
