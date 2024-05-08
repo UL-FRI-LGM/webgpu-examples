@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 
-// a map from extname to content type - extent if necessary
+// a map from extname to content type - extend if necessary
 const extnameToContentType = {
     'js'   : 'text/javascript',
     'mjs'  : 'text/javascript',
@@ -25,8 +25,8 @@ const server = http.createServer(async (req, res) => {
     const requestPath = path.join('/', url);
 
     // get a file path from the project root
-    const rootPath = path.join(__dirname, '..');
-    let filePath = path.join(rootPath, url);
+    const rootPath = __dirname;
+    let filePath = path.join(rootPath, requestPath);
     if (filePath.endsWith(path.sep)) {
         filePath = path.join(filePath, 'index.html');
     }
@@ -41,12 +41,12 @@ const server = http.createServer(async (req, res) => {
         res.setHeader('Content-Type', contentType);
         res.writeHead(200);
         res.end(data);
-        console.log(`200 ${req.method} ${url}`);
+        console.log(`200 ${req.method} ${requestPath}`);
     } catch (e) {
         // if the file cannot be read, respond with an empty 404
         res.writeHead(404);
         res.end();
-        console.log(`404 ${req.method} ${url}`);
+        console.log(`404 ${req.method} ${requestPath}`);
     }
 });
 
