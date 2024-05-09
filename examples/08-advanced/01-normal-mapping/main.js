@@ -1,13 +1,10 @@
+import { GUI } from 'dat';
+
 import {
     Camera,
-    Material,
-    Mesh,
     Model,
     Node,
-    Sampler,
-    Texture,
     Transform,
-    Vertex,
 } from 'engine/core.js';
 
 import { quat } from 'glm';
@@ -21,6 +18,7 @@ import { ResizeSystem } from 'engine/systems/ResizeSystem.js';
 import { UpdateSystem } from 'engine/systems/UpdateSystem.js';
 
 import { Renderer } from './Renderer.js';
+import { Light } from './Light.js';
 
 const canvas = document.querySelector('canvas');
 const renderer = new Renderer(canvas);
@@ -35,16 +33,18 @@ camera.addComponent(new TurntableController(camera, canvas, { distance: 7 }));
 
 const model = gltfLoader.loadNode('Suzanne');
 const material = model.getComponentOfType(Model).primitives[0].material;
+material.diffuse = 1;
+material.specular = 1;
+material.shininess = 50;
 
-material.baseTexture = new Texture({
-    image: await createImageBitmap(new ImageData(new Uint8ClampedArray([255, 255, 255, 255]), 1, 1)),
-    sampler: new Sampler(),
-});
-
-material.normalTexture = new Texture({
-    image: await new ImageLoader().load('../../../models/monkey/monkey-normal.webp'),
-    sampler: new Sampler(),
-});
+const light = new Node();
+light.addComponent(new Transform({
+    translation: [0, 2, 2],
+}));
+light.addComponent(new Light({
+    intensity: 3,
+}));
+scene.addChild(light);
 
 function update(t, dt) {
     scene.traverse(node => {
@@ -64,3 +64,11 @@ function resize({ displaySize: { width, height }}) {
 
 new ResizeSystem({ canvas, resize }).start();
 new UpdateSystem({ update, render }).start();
+
+const gui = new GUI();
+const lightTransform = light.getComponentOfType(Transform);
+const lightPosition = gui.addFolder('Light position');
+lightPosition.open();
+lightPosition.add(lightTransform.translation, 0, -10, 10).name('x');
+lightPosition.add(lightTransform.translation, 1, -10, 10).name('y');
+lightPosition.add(lightTransform.translation, 2, -10, 10).name('z');

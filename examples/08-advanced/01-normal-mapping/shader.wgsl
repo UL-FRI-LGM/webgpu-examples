@@ -27,7 +27,13 @@ struct FragmentOutput {
 struct CameraUniforms {
     viewMatrix : mat4x4f,
     projectionMatrix : mat4x4f,
-    time : f32,
+    position : vec3f,
+}
+
+struct LightUniforms {
+    color : vec3f,
+    position : vec3f,
+    attenuation : vec3f,
 }
 
 struct ModelUniforms {
@@ -38,17 +44,19 @@ struct ModelUniforms {
 struct MaterialUniforms {
     baseFactor : vec4f,
     normalFactor : f32,
+    diffuse : f32,
+    specular : f32,
+    shininess : f32,
 }
 
 @group(0) @binding(0) var<uniform> camera : CameraUniforms;
-
-@group(1) @binding(0) var<uniform> model : ModelUniforms;
-
-@group(2) @binding(0) var<uniform> material : MaterialUniforms;
-@group(2) @binding(1) var uBaseTexture : texture_2d<f32>;
-@group(2) @binding(2) var uBaseSampler : sampler;
-@group(2) @binding(3) var uNormalTexture : texture_2d<f32>;
-@group(2) @binding(4) var uNormalSampler : sampler;
+@group(1) @binding(0) var<uniform> light : LightUniforms;
+@group(2) @binding(0) var<uniform> model : ModelUniforms;
+@group(3) @binding(0) var<uniform> material : MaterialUniforms;
+@group(3) @binding(1) var uBaseTexture : texture_2d<f32>;
+@group(3) @binding(2) var uBaseSampler : sampler;
+@group(3) @binding(3) var uNormalTexture : texture_2d<f32>;
+@group(3) @binding(4) var uNormalSampler : sampler;
 
 @vertex
 fn vertex(input : VertexInput) -> VertexOutput {
@@ -79,15 +87,26 @@ fn fragment(input : FragmentInput) -> FragmentOutput {
     let tangentMatrix = mat3x3(tangent, bitangent, normal);
     let transformedNormal = tangentMatrix * scaledNormal;
 
-    let lightPosition = vec3f(sin(camera.time * 3) * 10, 5, 5);
-    let fragmentPosition = input.position;
+    let surfacePosition = input.position;
+    let d = distance(surfacePosition, light.position);
+    let attenuation = 1 / dot(light.attenuation, vec3(1, d, d * d));
 
     let N = transformedNormal;
-    let L = normalize(lightPosition - fragmentPosition);
+    let L = normalize(light.position - surfacePosition);
+    let V = normalize(camera.position - surfacePosition);
+    let R = normalize(reflect(-L, N));
 
-    let diffuse = max(dot(N, L), 0.0);
+    let lambert = max(dot(N, L), 0) * material.diffuse;
+    let phong = pow(max(dot(V, R), 0), material.shininess) * material.specular;
 
-    output.color = vec4(baseColor.xyz * diffuse, 1);
+    let diffuseLight = lambert * attenuation * light.color;
+    let specularLight = phong * attenuation * light.color;
+
+    const gamma = 2.2;
+    let albedo = pow(baseColor.rgb, vec3(gamma));
+    let finalColor = albedo * diffuseLight + specularLight;
+
+    output.color = pow(vec4(finalColor, 1), vec4(1 / gamma));
 
     return output;
 }

@@ -37,18 +37,12 @@ camera.addComponent(new TurntableController(camera, canvas, { distance: 7 }));
 
 const model = gltfLoader.loadNode('Suzanne');
 const material = model.getComponentOfType(Model).primitives[0].material;
-
-const imageLoader = new ImageLoader();
-material.baseTexture = new Texture({
-    image: await imageLoader.load('../../../models/monkey/base.png'),
-    sampler: new Sampler(),
-});
-
 material.reflectance = 1;
 material.transmittance = 1;
 material.ior = 0.75;
 material.effect = 0;
 
+const imageLoader = new ImageLoader();
 const environmentImages = await Promise.all([
     'px.webp',
     'nx.webp',

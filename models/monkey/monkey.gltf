@@ -50,6 +50,9 @@
 		{
 			"doubleSided":true,
 			"name":"Material",
+			"normalTexture": {
+				"index":1
+			},
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
 					"index":0
@@ -80,6 +83,10 @@
 		{
 			"sampler":0,
 			"source":0
+		},
+		{
+			"sampler":0,
+			"source":1
 		}
 	],
 	"images":[
@@ -87,6 +94,11 @@
 			"mimeType":"image/png",
 			"name":"base",
 			"uri":"base.png"
+		},
+		{
+			"mimeType":"image/webp",
+			"name":"normal",
+			"uri":"normal.webp"
 		}
 	],
 	"accessors":[
