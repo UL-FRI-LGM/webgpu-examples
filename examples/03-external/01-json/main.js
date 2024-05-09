@@ -16,7 +16,7 @@ import {
     Transform,
 } from 'engine/core.js';
 
-import { TurntableController } from 'engine/controllers/TurntableController.js';
+import { TouchController } from 'engine/controllers/TouchController.js';
 
 const canvas = document.querySelector('canvas');
 const renderer = new UnlitRenderer(canvas);
@@ -49,7 +49,7 @@ model.addComponent(new Model({
 const camera = new Node();
 camera.addComponent(new Transform());
 camera.addComponent(new Camera());
-camera.addComponent(new TurntableController(camera, canvas, {
+camera.addComponent(new TouchController(camera, canvas, {
     distance: 5,
 }));
 

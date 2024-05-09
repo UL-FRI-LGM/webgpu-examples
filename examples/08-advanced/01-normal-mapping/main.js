@@ -12,7 +12,7 @@ import { quat } from 'glm';
 import { ImageLoader } from 'engine/loaders/ImageLoader.js';
 import { GLTFLoader } from 'engine/loaders/GLTFLoader.js';
 
-import { TurntableController } from 'engine/controllers/TurntableController.js';
+import { TouchController } from 'engine/controllers/TouchController.js';
 
 import { ResizeSystem } from 'engine/systems/ResizeSystem.js';
 import { UpdateSystem } from 'engine/systems/UpdateSystem.js';
@@ -29,7 +29,7 @@ await gltfLoader.load(new URL('../../../models/monkey/monkey.gltf', import.meta.
 
 const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
 const camera = gltfLoader.loadNode('Camera');
-camera.addComponent(new TurntableController(camera, canvas, { distance: 7 }));
+camera.addComponent(new TouchController(camera, canvas, { distance: 7 }));
 
 const model = gltfLoader.loadNode('Suzanne');
 const material = model.getComponentOfType(Model).primitives[0].material;

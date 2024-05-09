@@ -10,7 +10,7 @@ import {
     Transform,
 } from 'engine/core.js';
 
-import { TurntableController } from 'engine/controllers/TurntableController.js';
+import { TouchController } from 'engine/controllers/TouchController.js';
 
 import { Light } from './Light.js';
 import { Renderer } from './Renderer.js';
@@ -24,7 +24,7 @@ await gltfLoader.load(new URL('../../../models/monkey/monkey.gltf', import.meta.
 
 const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
 const camera = gltfLoader.loadNode('Camera');
-camera.addComponent(new TurntableController(camera, canvas, { distance: 7 }));
+camera.addComponent(new TouchController(camera, canvas, { distance: 7 }));
 
 const light = new Node();
 light.addComponent(new Light());

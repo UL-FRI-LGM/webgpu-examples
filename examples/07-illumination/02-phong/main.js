@@ -6,7 +6,7 @@ import { UpdateSystem } from 'engine/systems/UpdateSystem.js';
 import { ImageLoader } from 'engine/loaders/ImageLoader.js';
 import { JSONLoader } from 'engine/loaders/JSONLoader.js';
 
-import { TurntableController } from 'engine/controllers/TurntableController.js';
+import { TouchController } from 'engine/controllers/TouchController.js';
 
 import {
     Camera,
@@ -34,7 +34,7 @@ camera.addComponent(new Camera({
     near: 0.1,
     far: 100,
 }));
-camera.addComponent(new TurntableController(camera, canvas, { distance: 3 }));
+camera.addComponent(new TouchController(camera, canvas, { distance: 3 }));
 scene.addChild(camera);
 
 const light = new Node();
