@@ -30,10 +30,7 @@ const scene = new Node();
 
 const camera = new Node();
 camera.addComponent(new Transform());
-camera.addComponent(new Camera({
-    near: 0.1,
-    far: 100,
-}));
+camera.addComponent(new Camera());
 camera.addComponent(new TouchController(camera, canvas, { distance: 3 }));
 scene.addChild(camera);
 
