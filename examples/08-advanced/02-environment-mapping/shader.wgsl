@@ -81,7 +81,9 @@ fn fragment(input : FragmentInput) -> FragmentOutput {
     let reflection = mix(baseColor, reflectedColor, material.reflectance);
     let refraction = mix(baseColor, refractedColor, material.transmittance);
 
-    output.color = mix(reflection, refraction, material.effect);
+    let finalColor = mix(reflection, refraction, material.effect);
+
+    output.color = vec4(pow(finalColor.rgb, vec3(1 / 2.2)), finalColor.a);
 
     return output;
 }

@@ -85,7 +85,9 @@ fn fragment(input : FragmentInput) -> FragmentOutput {
     let shadowTexcoords = shadowPosition.xy * vec2(0.5, -0.5) + 0.5;
     let shadowFactor = textureSampleCompare(shadowTexture, shadowSampler, shadowTexcoords.xy, shadowPosition.z - 0.002);
 
-    output.color = baseColor * vec4(vec3(0.3 + lambert * shadowFactor), 1);
+    let finalColor = baseColor * vec4(vec3(0.1 + lambert * shadowFactor), 1);
+
+    output.color = vec4(pow(finalColor.rgb, vec3(1 / 2.2)), finalColor.a);
 
     return output;
 }

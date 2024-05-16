@@ -32,12 +32,15 @@ export class BaseRenderer {
         );
     }
 
-    prepareImage(image) {
+    prepareImage(image, isSRGB = false) {
         if (this.gpuObjects.has(image)) {
             return this.gpuObjects.get(image);
         }
 
-        const gpuTexture = WebGPU.createTexture(this.device, { source: image });
+        const gpuTexture = WebGPU.createTexture(this.device, {
+            source: image,
+            format: isSRGB ? 'rgba8unorm-srgb' : 'rgba8unorm',
+        });
 
         const gpuObjects = { gpuTexture };
         this.gpuObjects.set(image, gpuObjects);

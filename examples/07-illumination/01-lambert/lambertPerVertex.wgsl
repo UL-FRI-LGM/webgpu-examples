@@ -68,12 +68,10 @@ fn vertex(input : VertexInput) -> VertexOutput {
 fn fragment(input : FragmentInput) -> FragmentOutput {
     var output : FragmentOutput;
 
-    const gamma = 2.2;
     let baseColor = textureSample(baseTexture, baseSampler, input.texcoords) * material.baseFactor;
-    let albedo = pow(baseColor.rgb, vec3(gamma));
-    let finalColor = albedo * input.diffuseLight;
+    let finalColor = baseColor.rgb * input.diffuseLight;
 
-    output.color = pow(vec4(finalColor, 1), vec4(1 / gamma));
+    output.color = pow(vec4(finalColor, 1), vec4(1 / 2.2));
 
     return output;
 }

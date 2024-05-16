@@ -84,7 +84,7 @@ export class Renderer extends BaseRenderer {
         this.environmentTexture?.destroy();
         this.environmentTexture = this.device.createTexture({
             size: [images[0].width, images[0].height, 6],
-            format: 'rgba8unorm',
+            format: 'rgba8unorm-srgb',
             usage:
                 GPUTextureUsage.TEXTURE_BINDING |
                 GPUTextureUsage.COPY_DST |
@@ -166,13 +166,25 @@ export class Renderer extends BaseRenderer {
         return gpuObjects;
     }
 
+    prepareTexture(texture) {
+        if (this.gpuObjects.has(texture)) {
+            return this.gpuObjects.get(texture);
+        }
+
+        const { gpuTexture } = this.prepareImage(texture.image, texture.isSRGB);
+        const { gpuSampler } = this.prepareSampler(texture.sampler);
+
+        const gpuObjects = { gpuTexture, gpuSampler };
+        this.gpuObjects.set(texture, gpuObjects);
+        return gpuObjects;
+    }
+
     prepareMaterial(material) {
         if (this.gpuObjects.has(material)) {
             return this.gpuObjects.get(material);
         }
 
-        const baseTexture = this.prepareImage(material.baseTexture.image).gpuTexture;
-        const baseSampler = this.prepareSampler(material.baseTexture.sampler).gpuSampler;
+        const baseTexture = this.prepareTexture(material.baseTexture);
 
         const materialUniformBuffer = this.device.createBuffer({
             size: 32,
@@ -183,8 +195,8 @@ export class Renderer extends BaseRenderer {
             layout: this.pipeline.getBindGroupLayout(2),
             entries: [
                 { binding: 0, resource: { buffer: materialUniformBuffer } },
-                { binding: 1, resource: baseTexture.createView() },
-                { binding: 2, resource: baseSampler },
+                { binding: 1, resource: baseTexture.gpuTexture.createView() },
+                { binding: 2, resource: baseTexture.gpuSampler },
             ],
         });
 

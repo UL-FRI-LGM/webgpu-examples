@@ -102,11 +102,8 @@ fn fragment(input : FragmentInput) -> FragmentOutput {
     let diffuseLight = lambert * attenuation * light.color;
     let specularLight = phong * attenuation * light.color;
 
-    const gamma = 2.2;
-    let albedo = pow(baseColor.rgb, vec3(gamma));
-    let finalColor = albedo * diffuseLight + specularLight;
-
-    output.color = pow(vec4(finalColor, 1), vec4(1 / gamma));
+    let finalColor = baseColor.rgb * diffuseLight + specularLight;
+    output.color = pow(vec4(finalColor, 1), vec4(1 / 2.2));
 
     return output;
 }

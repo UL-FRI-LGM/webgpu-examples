@@ -67,12 +67,10 @@ fn fragment(input : FragmentInput) -> FragmentOutput {
     let lambert = max(dot(N, L), 0);
     let diffuseLight = lambert * light.color;
 
-    const gamma = 2.2;
     let baseColor = textureSample(baseTexture, baseSampler, input.texcoords) * material.baseFactor;
-    let albedo = pow(baseColor.rgb, vec3(gamma));
-    let finalColor = albedo * diffuseLight;
+    let finalColor = baseColor.rgb * diffuseLight;
 
-    output.color = pow(vec4(finalColor, 1), vec4(1 / gamma));
+    output.color = pow(vec4(finalColor, 1), vec4(1 / 2.2));
 
     return output;
 }

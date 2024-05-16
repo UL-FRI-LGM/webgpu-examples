@@ -163,15 +163,26 @@ export class Renderer extends BaseRenderer {
         return gpuObjects;
     }
 
+    prepareTexture(texture) {
+        if (this.gpuObjects.has(texture)) {
+            return this.gpuObjects.get(texture);
+        }
+
+        const { gpuTexture } = this.prepareImage(texture.image, texture.isSRGB);
+        const { gpuSampler } = this.prepareSampler(texture.sampler);
+
+        const gpuObjects = { gpuTexture, gpuSampler };
+        this.gpuObjects.set(texture, gpuObjects);
+        return gpuObjects;
+    }
+
     prepareMaterial(material) {
         if (this.gpuObjects.has(material)) {
             return this.gpuObjects.get(material);
         }
 
-        const baseTexture = this.prepareImage(material.baseTexture.image).gpuTexture;
-        const baseSampler = this.prepareSampler(material.baseTexture.sampler).gpuSampler;
-        const normalTexture = this.prepareImage(material.normalTexture.image).gpuTexture;
-        const normalSampler = this.prepareSampler(material.normalTexture.sampler).gpuSampler;
+        const baseTexture = this.prepareTexture(material.baseTexture);
+        const normalTexture = this.prepareTexture(material.normalTexture);
 
         const materialUniformBuffer = this.device.createBuffer({
             size: 32,
@@ -182,10 +193,10 @@ export class Renderer extends BaseRenderer {
             layout: this.pipeline.getBindGroupLayout(3),
             entries: [
                 { binding: 0, resource: { buffer: materialUniformBuffer } },
-                { binding: 1, resource: baseTexture.createView() },
-                { binding: 2, resource: baseSampler },
-                { binding: 3, resource: normalTexture.createView() },
-                { binding: 4, resource: normalSampler },
+                { binding: 1, resource: baseTexture.gpuTexture.createView() },
+                { binding: 2, resource: baseTexture.gpuSampler },
+                { binding: 3, resource: normalTexture.gpuTexture.createView() },
+                { binding: 4, resource: normalTexture.gpuSampler },
             ],
         });
 

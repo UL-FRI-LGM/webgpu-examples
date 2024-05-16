@@ -119,13 +119,25 @@ export class UnlitRenderer extends BaseRenderer {
         return gpuObjects;
     }
 
+    prepareTexture(texture) {
+        if (this.gpuObjects.has(texture)) {
+            return this.gpuObjects.get(texture);
+        }
+
+        const { gpuTexture } = this.prepareImage(texture.image); // ignore sRGB
+        const { gpuSampler } = this.prepareSampler(texture.sampler);
+
+        const gpuObjects = { gpuTexture, gpuSampler };
+        this.gpuObjects.set(texture, gpuObjects);
+        return gpuObjects;
+    }
+
     prepareMaterial(material) {
         if (this.gpuObjects.has(material)) {
             return this.gpuObjects.get(material);
         }
 
-        const baseTexture = this.prepareImage(material.baseTexture.image).gpuTexture;
-        const baseSampler = this.prepareSampler(material.baseTexture.sampler).gpuSampler;
+        const baseTexture = this.prepareTexture(material.baseTexture);
 
         const materialUniformBuffer = this.device.createBuffer({
             size: 16,
@@ -136,8 +148,8 @@ export class UnlitRenderer extends BaseRenderer {
             layout: this.pipeline.getBindGroupLayout(2),
             entries: [
                 { binding: 0, resource: { buffer: materialUniformBuffer } },
-                { binding: 1, resource: baseTexture.createView() },
-                { binding: 2, resource: baseSampler },
+                { binding: 1, resource: baseTexture.gpuTexture.createView() },
+                { binding: 2, resource: baseTexture.gpuSampler },
             ],
         });
 

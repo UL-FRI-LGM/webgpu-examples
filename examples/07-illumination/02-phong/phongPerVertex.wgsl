@@ -49,8 +49,8 @@ struct MaterialUniforms {
 @group(1) @binding(0) var<uniform> light : LightUniforms;
 @group(2) @binding(0) var<uniform> model : ModelUniforms;
 @group(3) @binding(0) var<uniform> material : MaterialUniforms;
-@group(3) @binding(1) var uTexture : texture_2d<f32>;
-@group(3) @binding(2) var uSampler : sampler;
+@group(3) @binding(1) var baseTexture : texture_2d<f32>;
+@group(3) @binding(2) var baseSampler : sampler;
 
 @vertex
 fn vertex(input : VertexInput) -> VertexOutput {
@@ -84,11 +84,10 @@ fn vertex(input : VertexInput) -> VertexOutput {
 fn fragment(input : FragmentInput) -> FragmentOutput {
     var output : FragmentOutput;
 
-    const gamma = 2.2;
-    let albedo = pow(textureSample(uTexture, uSampler, input.texcoords).rgb, vec3(gamma));
-    let finalColor = albedo * input.diffuseLight + input.specularLight;
+    let baseColor = textureSample(baseTexture, baseSampler, input.texcoords) * material.baseFactor;
+    let finalColor = baseColor.rgb * input.diffuseLight + input.specularLight;
 
-    output.color = pow(vec4(finalColor, 1), vec4(1 / gamma));
+    output.color = pow(vec4(finalColor, 1), vec4(1 / 2.2));
 
     return output;
 }
