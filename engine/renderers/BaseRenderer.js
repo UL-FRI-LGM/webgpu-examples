@@ -23,15 +23,6 @@ export class BaseRenderer {
         this.format = format;
     }
 
-    mat3tomat4(matrix) {
-        return mat4.fromValues(
-            matrix[0], matrix[1], matrix[2], 0,
-            matrix[3], matrix[4], matrix[5], 0,
-            matrix[6], matrix[7], matrix[8], 0,
-            0, 0, 0, 1,
-        );
-    }
-
     prepareImage(image, isSRGB = false) {
         if (this.gpuObjects.has(image)) {
             return this.gpuObjects.get(image);

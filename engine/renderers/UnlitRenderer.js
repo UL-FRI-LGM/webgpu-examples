@@ -1,4 +1,4 @@
-import { mat3, mat4 } from 'glm';
+import { mat4 } from 'glm';
 
 import * as WebGPU from '../WebGPU.js';
 
@@ -201,7 +201,7 @@ export class UnlitRenderer extends BaseRenderer {
         modelMatrix = mat4.multiply(mat4.create(), modelMatrix, localMatrix);
 
         const { modelUniformBuffer, modelBindGroup } = this.prepareNode(node);
-        const normalMatrix = this.mat3tomat4(mat3.normalFromMat4(mat3.create(), modelMatrix));
+        const normalMatrix = mat4.normalFromMat4(mat4.create(), modelMatrix);
         this.device.queue.writeBuffer(modelUniformBuffer, 0, modelMatrix);
         this.device.queue.writeBuffer(modelUniformBuffer, 64, normalMatrix);
         this.renderPass.setBindGroup(1, modelBindGroup);
