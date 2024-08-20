@@ -40,7 +40,7 @@ export class UnlitRenderer extends BaseRenderer {
     async initialize() {
         await super.initialize();
 
-        const code = await fetch(new URL('../shaders/unlit.wgsl', import.meta.url))
+        const code = await fetch(new URL('UnlitRenderer.wgsl', import.meta.url))
             .then(response => response.text());
         const module = this.device.createShaderModule({ code });
 
