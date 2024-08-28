@@ -1,8 +1,8 @@
 export class Node {
 
     constructor() {
-        this.children = [];
         this.parent = null;
+        this.children = [];
         this.components = [];
     }
 
@@ -13,11 +13,12 @@ export class Node {
     }
 
     removeChild(node) {
-        const index = this.children.indexOf(node);
-        if (index >= 0) {
-            this.children.splice(index, 1);
-            node.parent = null;
-        }
+        this.children = this.children.filter(child => child !== node);
+        node.parent = null;
+    }
+
+    remove() {
+        this.parent?.removeChild(this);
     }
 
     traverse(before, after) {
