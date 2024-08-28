@@ -106,21 +106,24 @@ const viewMatrix = mat4.create();
 const projectionMatrix = mat4.create();
 
 function update(t, dt) {
-    mat4.identity(modelMatrix);
-    mat4.rotateX(modelMatrix, modelMatrix, t * 0.5);
-    mat4.rotateY(modelMatrix, modelMatrix, t * 0.6);
+    modelMatrix
+        .identity()
+        .rotateX(t * 0.5)
+        .rotateY(t * 0.6);
 
-    mat4.fromTranslation(viewMatrix, [0, 0, 5]);
-    mat4.invert(viewMatrix, viewMatrix);
+    viewMatrix
+        .identity()
+        .translate([0, 0, 5])
+        .invert();
 }
 
 function render() {
-    const projectionViewModelMatrix = mat4.create();
-    mat4.multiply(projectionViewModelMatrix, projectionViewModelMatrix, projectionMatrix);
-    mat4.multiply(projectionViewModelMatrix, projectionViewModelMatrix, viewMatrix);
-    mat4.multiply(projectionViewModelMatrix, projectionViewModelMatrix, modelMatrix);
+    const matrix = mat4.create()
+        .multiply(projectionMatrix)
+        .multiply(viewMatrix)
+        .multiply(modelMatrix);
 
-    queue.writeBuffer(uniformBuffer, 0, projectionViewModelMatrix);
+    queue.writeBuffer(uniformBuffer, 0, matrix);
 
     const encoder = device.createCommandEncoder();
     const renderPass = encoder.beginRenderPass({
@@ -156,7 +159,7 @@ function resize({ displaySize: { width, height }}) {
         usage: GPUTextureUsage.RENDER_ATTACHMENT,
     });
 
-    mat4.perspectiveZO(projectionMatrix, Math.PI / 3, width / height, 0.1, 100);
+    projectionMatrix.perspectiveZO(Math.PI / 3, width / height, 0.1, 100);
 }
 
 new ResizeSystem({ canvas, resize }).start();

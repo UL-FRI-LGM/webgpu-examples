@@ -396,11 +396,10 @@ export class Renderer extends BaseRenderer {
     }
 
     renderNode(node, modelMatrix = mat4.create()) {
-        const localMatrix = getLocalModelMatrix(node);
-        modelMatrix = mat4.multiply(mat4.create(), modelMatrix, localMatrix);
+        modelMatrix.multiply(getLocalModelMatrix(node));
+        const normalMatrix = mat4.normalFromMat4(mat4.create(), modelMatrix);
 
         const { modelUniformBuffer, modelBindGroup } = this.prepareNode(node);
-        const normalMatrix = mat4.normalFromMat4(mat4.create(), modelMatrix);
         this.device.queue.writeBuffer(modelUniformBuffer, 0, modelMatrix);
         this.device.queue.writeBuffer(modelUniformBuffer, 64, normalMatrix);
         this.renderPass.setBindGroup(1, modelBindGroup);
