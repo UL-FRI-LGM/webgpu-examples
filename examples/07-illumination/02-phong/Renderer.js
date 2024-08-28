@@ -325,7 +325,8 @@ export class Renderer extends BaseRenderer {
     }
 
     renderNode(node, modelMatrix = mat4.create()) {
-        modelMatrix.multiply(getLocalModelMatrix(node));
+        const localMatrix = getLocalModelMatrix(node);
+        modelMatrix = mat4.multiply(mat4.create(), modelMatrix, localMatrix);
         const normalMatrix = mat4.normalFromMat4(mat4.create(), modelMatrix);
 
         const { modelUniformBuffer, modelBindGroup } = this.prepareNode(node);
