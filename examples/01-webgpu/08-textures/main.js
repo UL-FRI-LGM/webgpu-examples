@@ -138,7 +138,7 @@ function render() {
     renderPass.setBindGroup(0, bindGroup);
     renderPass.setVertexBuffer(0, vertexBuffer);
     renderPass.setIndexBuffer(indexBuffer, 'uint32');
-    renderPass.drawIndexed(3);
+    renderPass.drawIndexed(indices.length);
     renderPass.end();
     queue.submit([encoder.finish()]);
 }
