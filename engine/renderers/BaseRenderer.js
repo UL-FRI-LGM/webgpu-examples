@@ -1,5 +1,3 @@
-import { mat4 } from 'glm';
-
 import * as WebGPU from '../WebGPU.js';
 
 import { createVertexBuffer } from '../core/VertexUtils.js';

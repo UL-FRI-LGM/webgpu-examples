@@ -12,10 +12,6 @@ import {
     getModels,
 } from 'engine/core/SceneUtils.js';
 
-import {
-    createVertexBuffer,
-} from 'engine/core/VertexUtils.js';
-
 import { Light } from './Light.js';
 
 const vertexBufferLayout = {

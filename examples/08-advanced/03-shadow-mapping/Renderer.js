@@ -2,13 +2,8 @@ import { vec3, mat4 } from 'glm';
 
 import * as WebGPU from 'engine/WebGPU.js';
 
+import { Camera } from 'engine/core.js';
 import { BaseRenderer } from 'engine/renderers/BaseRenderer.js';
-
-import {
-    Camera,
-    Model,
-    Transform,
-} from 'engine/core.js';
 
 import {
     getLocalModelMatrix,
@@ -17,10 +12,6 @@ import {
     getProjectionMatrix,
     getModels,
 } from 'engine/core/SceneUtils.js';
-
-import {
-    createVertexBuffer,
-} from 'engine/core/VertexUtils.js';
 
 import { Light } from './Light.js';
 
