@@ -1,66 +1,66 @@
 struct VertexInput {
-    @location(0) position : vec3f,
-    @location(1) texcoords : vec2f,
-    @location(2) normal : vec3f,
-    @location(3) tangent : vec3f,
+    @location(0) position: vec3f,
+    @location(1) texcoords: vec2f,
+    @location(2) normal: vec3f,
+    @location(3) tangent: vec3f,
 }
 
 struct VertexOutput {
-    @builtin(position) clipPosition : vec4f,
-    @location(0) position : vec3f,
-    @location(1) texcoords : vec2f,
-    @location(2) normal : vec3f,
-    @location(3) tangent : vec3f,
+    @builtin(position) clipPosition: vec4f,
+    @location(0) position: vec3f,
+    @location(1) texcoords: vec2f,
+    @location(2) normal: vec3f,
+    @location(3) tangent: vec3f,
 }
 
 struct FragmentInput {
-    @location(0) position : vec3f,
-    @location(1) texcoords : vec2f,
-    @location(2) normal : vec3f,
-    @location(3) tangent : vec3f,
+    @location(0) position: vec3f,
+    @location(1) texcoords: vec2f,
+    @location(2) normal: vec3f,
+    @location(3) tangent: vec3f,
 }
 
 struct FragmentOutput {
-    @location(0) color : vec4f,
+    @location(0) color: vec4f,
 }
 
 struct CameraUniforms {
-    viewMatrix : mat4x4f,
-    projectionMatrix : mat4x4f,
-    position : vec3f,
+    viewMatrix: mat4x4f,
+    projectionMatrix: mat4x4f,
+    position: vec3f,
 }
 
 struct LightUniforms {
-    color : vec3f,
-    position : vec3f,
-    attenuation : vec3f,
+    color: vec3f,
+    position: vec3f,
+    attenuation: vec3f,
 }
 
 struct ModelUniforms {
-    modelMatrix : mat4x4f,
-    normalMatrix : mat3x3f,
+    modelMatrix: mat4x4f,
+    normalMatrix: mat3x3f,
 }
 
 struct MaterialUniforms {
-    baseFactor : vec4f,
-    normalFactor : f32,
-    diffuse : f32,
-    specular : f32,
-    shininess : f32,
+    baseFactor: vec4f,
+    normalFactor: f32,
+    diffuse: f32,
+    specular: f32,
+    shininess: f32,
 }
 
-@group(0) @binding(0) var<uniform> camera : CameraUniforms;
-@group(1) @binding(0) var<uniform> light : LightUniforms;
-@group(2) @binding(0) var<uniform> model : ModelUniforms;
-@group(3) @binding(0) var<uniform> material : MaterialUniforms;
-@group(3) @binding(1) var uBaseTexture : texture_2d<f32>;
-@group(3) @binding(2) var uBaseSampler : sampler;
-@group(3) @binding(3) var uNormalTexture : texture_2d<f32>;
-@group(3) @binding(4) var uNormalSampler : sampler;
+@group(0) @binding(0) var<uniform> camera: CameraUniforms;
+@group(1) @binding(0) var<uniform> light: LightUniforms;
+@group(2) @binding(0) var<uniform> model: ModelUniforms;
+@group(3) @binding(0) var<uniform> material: MaterialUniforms;
+@group(3) @binding(1) var uBaseTexture: texture_2d<f32>;
+@group(3) @binding(2) var uBaseSampler: sampler;
+@group(3) @binding(3) var uNormalTexture: texture_2d<f32>;
+@group(3) @binding(4) var uNormalSampler: sampler;
 
 @vertex
-fn vertex(input : VertexInput) -> VertexOutput {
-    var output : VertexOutput;
+fn vertex(input: VertexInput) -> VertexOutput {
+    var output: VertexOutput;
 
     let position = model.modelMatrix * vec4(input.position, 1);
     output.clipPosition = camera.projectionMatrix * camera.viewMatrix * position;
@@ -73,8 +73,8 @@ fn vertex(input : VertexInput) -> VertexOutput {
 }
 
 @fragment
-fn fragment(input : FragmentInput) -> FragmentOutput {
-    var output : FragmentOutput;
+fn fragment(input: FragmentInput) -> FragmentOutput {
+    var output: FragmentOutput;
 
     let baseColor = textureSample(uBaseTexture, uBaseSampler, input.texcoords);
     let normalColor = textureSample(uNormalTexture, uNormalSampler, input.texcoords);
