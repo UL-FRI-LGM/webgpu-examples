@@ -31,12 +31,16 @@ const end = loader.loadNode('End');
 
 const startPosition = mat4.getTranslation(vec3.create(), getGlobalModelMatrix(start));
 const endPosition = mat4.getTranslation(vec3.create(), getGlobalModelMatrix(end));
+const transform = cube.getComponentOfType(Transform);
+
+cube.addComponent({
+    update(t, dt) {
+        const time = t % 1;
+        vec3.lerp(transform.translation, startPosition, endPosition, EasingFunctions.bounceEaseOut(time));
+    }
+});
 
 function update(t, dt) {
-    const time = t % 1;
-    const transform = cube.getComponentOfType(Transform);
-    vec3.lerp(transform.translation, startPosition, endPosition, EasingFunctions.bounceEaseOut(time));
-
     scene.traverse(node => {
         for (const component of node.components) {
             component.update?.(t, dt);
