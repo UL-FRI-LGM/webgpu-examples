@@ -2,20 +2,13 @@ import { GUI } from 'dat';
 
 import { ResizeSystem } from 'engine/systems/ResizeSystem.js';
 import { UpdateSystem } from 'engine/systems/UpdateSystem.js';
-
-import { ImageLoader } from 'engine/loaders/ImageLoader.js';
-import { JSONLoader } from 'engine/loaders/JSONLoader.js';
-
+import { GLTFLoader } from 'engine/loaders/GLTFLoader.js';
 import { TouchController } from 'engine/controllers/TouchController.js';
 
 import {
     Camera,
-    Material,
     Model,
     Node,
-    Primitive,
-    Sampler,
-    Texture,
     Transform,
 } from 'engine/core.js';
 
@@ -26,39 +19,20 @@ const canvas = document.querySelector('canvas');
 const renderer = new Renderer(canvas);
 await renderer.initialize();
 
-const scene = new Node();
+const gltfLoader = new GLTFLoader();
+await gltfLoader.load(new URL('../../../models/monkey/monkey.gltf', import.meta.url));
 
-const camera = new Node();
-camera.addComponent(new Transform());
-camera.addComponent(new Camera());
-camera.addComponent(new TouchController(camera, canvas, { distance: 3 }));
-scene.addChild(camera);
+const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
+const camera = gltfLoader.loadNode('Camera');
+camera.addComponent(new TouchController(camera, canvas, { distance: 7 }));
+
+const model = gltfLoader.loadNode('Suzanne');
 
 const light = new Node();
 light.addComponent(new Light({
     direction: [-1, 1, 1],
 }));
 scene.addChild(light);
-
-const model = new Node();
-model.addComponent(new Model({
-    primitives: [
-        new Primitive({
-            mesh: await new JSONLoader().loadMesh('../../../models/monkey/monkey.json'),
-            material: new Material({
-                baseTexture: new Texture({
-                    image: await new ImageLoader().load('../../../models/monkey/base.png'),
-                    sampler: new Sampler({
-                        minFilter: 'nearest',
-                        magFilter: 'nearest',
-                    }),
-                    isSRGB: true,
-                }),
-            }),
-        }),
-    ],
-}));
-scene.addChild(model);
 
 function update(time, dt) {
     scene.traverse(node => {
@@ -69,7 +43,7 @@ function update(time, dt) {
 }
 
 function render() {
-    renderer.render(scene, camera, light);
+    renderer.render(scene, camera);
 }
 
 function resize({ displaySize: { width, height }}) {

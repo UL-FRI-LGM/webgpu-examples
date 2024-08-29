@@ -274,7 +274,7 @@ export class Renderer extends BaseRenderer {
         return gpuObjects;
     }
 
-    render(scene, camera, light) {
+    render(scene, camera) {
         if (this.depthTexture.width !== this.canvas.width || this.depthTexture.height !== this.canvas.height) {
             this.recreateDepthTexture();
         }
@@ -308,6 +308,7 @@ export class Renderer extends BaseRenderer {
         this.device.queue.writeBuffer(cameraUniformBuffer, 128, cameraPosition);
         this.renderPass.setBindGroup(0, cameraBindGroup);
 
+        const light = scene.find(node => node.getComponentOfType(Light));
         const lightComponent = light.getComponentOfType(Light);
         const lightColor = vec3.scale(vec3.create(), lightComponent.color, lightComponent.intensity / 255);
         const lightPosition = mat4.getTranslation(vec3.create(), getGlobalModelMatrix(light));

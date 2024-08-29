@@ -1,21 +1,16 @@
 import { GUI } from 'dat';
 
+import { ResizeSystem } from 'engine/systems/ResizeSystem.js';
+import { UpdateSystem } from 'engine/systems/UpdateSystem.js';
+import { GLTFLoader } from 'engine/loaders/GLTFLoader.js';
+import { TouchController } from 'engine/controllers/TouchController.js';
+
 import {
     Camera,
     Model,
     Node,
     Transform,
 } from 'engine/core.js';
-
-import { quat } from 'glm';
-
-import { ImageLoader } from 'engine/loaders/ImageLoader.js';
-import { GLTFLoader } from 'engine/loaders/GLTFLoader.js';
-
-import { TouchController } from 'engine/controllers/TouchController.js';
-
-import { ResizeSystem } from 'engine/systems/ResizeSystem.js';
-import { UpdateSystem } from 'engine/systems/UpdateSystem.js';
 
 import { Renderer } from './Renderer.js';
 import { Light } from './Light.js';
