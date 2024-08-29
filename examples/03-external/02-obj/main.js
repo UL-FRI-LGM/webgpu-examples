@@ -1,13 +1,12 @@
 import { ResizeSystem } from 'engine/systems/ResizeSystem.js';
 import { UpdateSystem } from 'engine/systems/UpdateSystem.js';
 
-import { OBJLoader } from 'engine/loaders/OBJLoader.js';
 import { UnlitRenderer } from 'engine/renderers/UnlitRenderer.js';
+import { TouchController } from 'engine/controllers/TouchController.js';
 
 import {
     Camera,
     Material,
-    Mesh,
     Model,
     Node,
     Primitive,
@@ -16,33 +15,30 @@ import {
     Transform,
 } from 'engine/core.js';
 
-import { TouchController } from 'engine/controllers/TouchController.js';
+import { loadResources } from 'engine/loaders/resources.js';
+
+const resources = await loadResources({
+    'mesh': new URL('../../../models/monkey/monkey.obj', import.meta.url),
+    'image': new URL('../../../models/monkey/base.png', import.meta.url),
+});
 
 const canvas = document.querySelector('canvas');
 const renderer = new UnlitRenderer(canvas);
 await renderer.initialize();
 
-const loader = new OBJLoader();
-const mesh = await loader.loadMesh('../../../models/monkey/monkey.obj');
-
-const image = await fetch('../../../models/monkey/base.png')
-    .then(response => response.blob())
-    .then(blob => createImageBitmap(blob));
-
-const sampler = new Sampler({
-    minFilter: 'nearest',
-    magFilter: 'nearest',
-});
-
-const texture = new Texture({ image, sampler });
-
-const material = new Material({ baseTexture: texture });
-
 const model = new Node();
 model.addComponent(new Transform());
 model.addComponent(new Model({
     primitives: [
-        new Primitive({ mesh, material }),
+        new Primitive({
+            mesh: resources.mesh,
+            material: new Material({
+                baseTexture: new Texture({
+                    image: resources.image,
+                    sampler: new Sampler(),
+                }),
+            }),
+        }),
     ],
 }));
 

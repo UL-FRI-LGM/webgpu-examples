@@ -1,6 +1,12 @@
 import { GUI } from 'dat';
 import { mat4 } from 'glm';
 
+import * as WebGPU from 'engine/WebGPU.js';
+import { ResizeSystem } from 'engine/systems/ResizeSystem.js';
+import { UpdateSystem } from 'engine/systems/UpdateSystem.js';
+import { UnlitRenderer } from 'engine/renderers/UnlitRenderer.js';
+import { FirstPersonController } from 'engine/controllers/FirstPersonController.js';
+
 import {
     Camera,
     Material,
@@ -12,14 +18,12 @@ import {
     Transform,
 } from 'engine/core.js';
 
-import * as WebGPU from 'engine/WebGPU.js';
-import { ResizeSystem } from 'engine/systems/ResizeSystem.js';
-import { UpdateSystem } from 'engine/systems/UpdateSystem.js';
-import { ImageLoader } from 'engine/loaders/ImageLoader.js';
-import { JSONLoader } from 'engine/loaders/JSONLoader.js';
-import { UnlitRenderer } from 'engine/renderers/UnlitRenderer.js';
+import { loadResources } from 'engine/loaders/resources.js';
 
-import { FirstPersonController } from 'engine/controllers/FirstPersonController.js';
+const resources = await loadResources({
+    'mesh': new URL('../../../models/floor/floor.json', import.meta.url),
+    'image': new URL('../../../models/floor/grass.png', import.meta.url),
+});
 
 const canvas = document.querySelector('canvas');
 const renderer = new UnlitRenderer(canvas);
@@ -42,10 +46,10 @@ floor.addComponent(new Transform({
 floor.addComponent(new Model({
     primitives: [
         new Primitive({
-            mesh: await new JSONLoader().loadMesh('../../../models/floor/floor.json'),
+            mesh: resources.mesh,
             material: new Material({
                 baseTexture: new Texture({
-                    image: await new ImageLoader().load('../../../models/floor/grass.png'),
+                    image: resources.image,
                     sampler: new Sampler({
                         minFilter: 'nearest',
                         magFilter: 'nearest',

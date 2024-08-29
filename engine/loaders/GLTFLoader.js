@@ -31,6 +31,8 @@ export class GLTFLoader {
 
         await Promise.all(this.gltf.buffers?.map(buffer => this.preloadBuffer(buffer)) ?? []);
         await Promise.all(this.gltf.images?.map(image => this.preloadImage(image)) ?? []);
+
+        return this;
     }
 
     // Finds an object in list at the given index, or if the 'name'
