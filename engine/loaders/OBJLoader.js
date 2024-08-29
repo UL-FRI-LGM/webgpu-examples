@@ -44,15 +44,14 @@ export class OBJLoader {
         const vertices = [];
         const indices = [];
         const cache = {};
-        let cacheLength = 0;
         const indicesRegex = /(\d+)(\/(\d+))?(\/(\d+))?/;
 
         for (const id of fData) {
             if (id in cache) {
                 indices.push(cache[id]);
             } else {
-                cache[id] = cacheLength;
-                indices.push(cacheLength);
+                cache[id] = vertices.length;
+                indices.push(vertices.length);
                 const [,vIndex,,vtIndex,,vnIndex] = [...id.match(indicesRegex)]
                     .map(entry => Number(entry) - 1);
                 vertices.push(new Vertex({
@@ -60,7 +59,6 @@ export class OBJLoader {
                     normal: vnData[vnIndex],
                     texcoords: vtData[vtIndex],
                 }));
-                cacheLength++;
             }
         }
 
