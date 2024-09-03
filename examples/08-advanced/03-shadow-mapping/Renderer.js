@@ -125,12 +125,10 @@ export class Renderer extends BaseRenderer {
             }),
             vertex: {
                 module: colorPassModule,
-                entryPoint: 'vertex',
                 buffers: [ vertexBufferLayout ],
             },
             fragment: {
                 module: colorPassModule,
-                entryPoint: 'fragment',
                 targets: [{ format: this.format }],
             },
             depthStencil: {
@@ -149,7 +147,6 @@ export class Renderer extends BaseRenderer {
             }),
             vertex: {
                 module: shadowPassModule,
-                entryPoint: 'vertex',
                 buffers: [ vertexBufferLayout ],
             },
             depthStencil: {

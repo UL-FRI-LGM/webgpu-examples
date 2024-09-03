@@ -122,12 +122,10 @@ export class Renderer extends BaseRenderer {
         this.pipelinePerFragment = await this.device.createRenderPipelineAsync({
             vertex: {
                 module: modulePerFragment,
-                entryPoint: 'vertex',
                 buffers: [ vertexBufferLayout ],
             },
             fragment: {
                 module: modulePerFragment,
-                entryPoint: 'fragment',
                 targets: [{ format: this.format }],
             },
             depthStencil: {
@@ -141,12 +139,10 @@ export class Renderer extends BaseRenderer {
         this.pipelinePerVertex = await this.device.createRenderPipelineAsync({
             vertex: {
                 module: modulePerVertex,
-                entryPoint: 'vertex',
                 buffers: [ vertexBufferLayout ],
             },
             fragment: {
                 module: modulePerVertex,
-                entryPoint: 'fragment',
                 targets: [{ format: this.format }],
             },
             depthStencil: {

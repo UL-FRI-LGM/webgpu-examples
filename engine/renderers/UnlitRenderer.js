@@ -48,12 +48,10 @@ export class UnlitRenderer extends BaseRenderer {
             layout: 'auto',
             vertex: {
                 module,
-                entryPoint: 'vertex',
                 buffers: [ vertexBufferLayout ],
             },
             fragment: {
                 module,
-                entryPoint: 'fragment',
                 targets: [{ format: this.format }],
             },
             depthStencil: {

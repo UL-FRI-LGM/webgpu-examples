@@ -29,12 +29,10 @@ const module = device.createShaderModule({ code });
 const pipeline = device.createRenderPipeline({
     vertex: {
         module,
-        entryPoint: 'vertex',
         buffers: [ vertexBufferLayout ],
     },
     fragment: {
         module,
-        entryPoint: 'fragment',
         targets: [{ format }],
     },
     layout: 'auto',
