@@ -55,7 +55,7 @@ fn vertex(input: VertexInput) -> VertexOutput {
     let N = model.normalMatrix * input.normal;
     let L = light.direction;
 
-    let lambert = max(dot(N, L), 0);
+    let lambert = max(dot(N, L), 0.0);
     output.diffuseLight = lambert * light.color;
 
     return output;

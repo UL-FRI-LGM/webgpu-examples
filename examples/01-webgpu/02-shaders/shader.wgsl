@@ -23,13 +23,13 @@ const positions = array(
 @vertex
 fn vertex(input: VertexInput) -> VertexOutput {
     var output: VertexOutput;
-    output.position = vec4(positions[input.vertexIndex], 0, 1);
+    output.position = vec4f(positions[input.vertexIndex], 0, 1);
     return output;
 }
 
 @fragment
 fn fragment(input: FragmentInput) -> FragmentOutput {
     var output: FragmentOutput;
-    output.color = vec4(1, 0, 0, 1);
+    output.color = vec4f(1, 0, 0, 1);
     return output;
 }

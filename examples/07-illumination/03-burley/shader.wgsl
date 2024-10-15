@@ -55,11 +55,11 @@ const PI = 3.14159265358979;
 const GAMMA = 2.2;
 
 fn F_Schlick_vec3f(f0: vec3f, f90: vec3f, VdotH: f32) -> vec3f {
-    return f0 + (f90 - f0) * pow(1 - VdotH, 5);
+    return f0 + (f90 - f0) * pow(1 - VdotH, 5.0);
 }
 
 fn F_Schlick_f32(f0: f32, f90: f32, VdotH: f32) -> f32 {
-    return f0 + (f90 - f0) * pow(1 - VdotH, 5);
+    return f0 + (f90 - f0) * pow(1 - VdotH, 5.0);
 }
 
 fn V_GGX(NdotL: f32, NdotV: f32, roughness: f32) -> f32 {
@@ -79,8 +79,8 @@ fn D_GGX(NdotH: f32, roughness: f32) -> f32 {
 
 fn Fd_Burley(NdotV: f32, NdotL: f32, VdotH: f32, roughness: f32) -> f32 {
     let f90 = 0.5 + 2 * roughness * VdotH * VdotH;
-    let lightScatter = F_Schlick_f32(1, f90, NdotL);
-    let viewScatter = F_Schlick_f32(1, f90, NdotV);
+    let lightScatter = F_Schlick_f32(1.0, f90, NdotL);
+    let viewScatter = F_Schlick_f32(1.0, f90, NdotV);
     return lightScatter * viewScatter / PI;
 }
 
@@ -96,18 +96,18 @@ fn BRDF_specular(f0: vec3f, f90: vec3f, roughness: f32, VdotH: f32, NdotL: f32, 
 }
 
 fn linearTosRGB(color: vec3f) -> vec3f {
-    return pow(color, vec3(1 / GAMMA));
+    return pow(color, vec3f(1 / GAMMA));
 }
 
 fn sRGBToLinear(color: vec3f) -> vec3f {
-    return pow(color, vec3(GAMMA));
+    return pow(color, vec3f(GAMMA));
 }
 
 @vertex
 fn vertex(input: VertexInput) -> VertexOutput {
     var output: VertexOutput;
-    output.clipPosition = camera.projectionMatrix * camera.viewMatrix * model.modelMatrix * vec4(input.position, 1);
-    output.position = (model.modelMatrix * vec4(input.position, 1)).xyz;
+    output.clipPosition = camera.projectionMatrix * camera.viewMatrix * model.modelMatrix * vec4f(input.position, 1);
+    output.position = (model.modelMatrix * vec4f(input.position, 1)).xyz;
     output.texcoords = input.texcoords;
     output.normal = model.normalMatrix * input.normal;
     return output;
@@ -121,7 +121,7 @@ fn fragment(input: FragmentInput) -> FragmentOutput {
 
     let surfacePosition = input.position;
     let d = distance(surfacePosition, light.position);
-    let attenuation = 1 / dot(light.attenuation, vec3(1, d, d * d));
+    let attenuation = 1 / dot(light.attenuation, vec3f(1, d, d * d));
     let lightColor = attenuation * light.color;
 
     let N = normalize(input.normal);
@@ -129,20 +129,20 @@ fn fragment(input: FragmentInput) -> FragmentOutput {
     let V = normalize(camera.position - surfacePosition);
     let H = normalize(L + V);
 
-    let NdotL = max(dot(N, L), 0);
-    let NdotV = max(dot(N, V), 0);
-    let NdotH = max(dot(N, H), 0);
-    let VdotH = max(dot(V, H), 0);
+    let NdotL = max(dot(N, L), 0.0);
+    let NdotV = max(dot(N, V), 0.0);
+    let NdotH = max(dot(N, H), 0.0);
+    let VdotH = max(dot(V, H), 0.0);
 
-    let f0 = mix(vec3(0.04), baseColor.rgb, material.metalness);
-    let f90 = vec3(1.0);
-    let diffuseColor = mix(baseColor.rgb, vec3(0), material.metalness);
+    let f0 = mix(vec3f(0.04), baseColor.rgb, material.metalness);
+    let f90 = vec3f(1);
+    let diffuseColor = mix(baseColor.rgb, vec3f(0), material.metalness);
 
     let diffuse = lightColor * NdotL * BRDF_diffuse(f0, f90, diffuseColor, VdotH);
     let specular = lightColor * NdotL * BRDF_specular(f0, f90, material.roughness, VdotH, NdotL, NdotV, NdotH);
 
     let finalColor = diffuse + specular;
-    output.color = vec4(linearTosRGB(finalColor), 1);
+    output.color = vec4f(linearTosRGB(finalColor), 1);
 
     return output;
 }

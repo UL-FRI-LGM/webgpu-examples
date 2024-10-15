@@ -65,8 +65,8 @@ fn vertex(input: VertexInput) -> VertexOutput {
     let V = normalize(camera.position - surfacePosition);
     let R = normalize(reflect(-L, N));
 
-    let lambert = max(dot(N, L), 0) * material.diffuse;
-    let phong = pow(max(dot(V, R), 0), material.shininess) * material.specular;
+    let lambert = max(dot(N, L), 0.0) * material.diffuse;
+    let phong = pow(max(dot(V, R), 0.0), material.shininess) * material.specular;
 
     let diffuseLight = lambert * attenuation * light.color;
     let specularLight = phong * attenuation * light.color;

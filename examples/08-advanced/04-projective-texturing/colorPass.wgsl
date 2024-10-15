@@ -76,7 +76,7 @@ fn fragment(input: FragmentInput) -> FragmentOutput {
     let N = normalize(input.normal);
     let L = normalize(light.position - input.position);
 
-    let lambert = max(dot(N, L), 0);
+    let lambert = max(dot(N, L), 0.0);
 
     let baseColor = textureSample(baseTexture, baseSampler, input.texcoords) * material.baseFactor;
 
