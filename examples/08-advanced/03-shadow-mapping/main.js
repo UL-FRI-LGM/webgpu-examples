@@ -24,7 +24,7 @@ await gltfLoader.load(new URL('../../../models/monkey/monkey.gltf', import.meta.
 
 const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
 const camera = gltfLoader.loadNode('Camera');
-camera.addComponent(new TouchController(camera, canvas, { distance: 7 }));
+camera.addComponent(new TouchController(camera, canvas, { distance: 5 }));
 
 const light = new Node();
 light.addComponent(new Light());
