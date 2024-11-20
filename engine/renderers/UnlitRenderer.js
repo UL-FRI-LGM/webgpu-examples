@@ -2,13 +2,12 @@ import { mat4 } from 'glm';
 
 import * as WebGPU from '../WebGPU.js';
 
-import { Camera } from '../core.js';
+import { Camera, Model } from '../core.js';
 
 import {
     getLocalModelMatrix,
     getGlobalViewMatrix,
     getProjectionMatrix,
-    getModels,
 } from '../core/SceneUtils.js';
 
 import { BaseRenderer } from './BaseRenderer.js';
@@ -204,7 +203,7 @@ export class UnlitRenderer extends BaseRenderer {
         this.device.queue.writeBuffer(modelUniformBuffer, 64, normalMatrix);
         this.renderPass.setBindGroup(1, modelBindGroup);
 
-        for (const model of getModels(node)) {
+        for (const model of node.getComponentsOfType(Model)) {
             this.renderModel(model);
         }
 

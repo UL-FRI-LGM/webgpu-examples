@@ -33,7 +33,3 @@ export function getGlobalViewMatrix(node) {
 export function getProjectionMatrix(node) {
     return node.getComponentOfType(Camera)?.projectionMatrix ?? mat4.create();
 }
-
-export function getModels(node) {
-    return node.getComponentsOfType(Model);
-}

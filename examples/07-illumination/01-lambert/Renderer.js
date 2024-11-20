@@ -2,14 +2,13 @@ import { vec3, mat4 } from 'glm';
 
 import * as WebGPU from 'engine/WebGPU.js';
 
-import { Camera } from 'engine/core.js';
+import { Camera, Model } from 'engine/core.js';
 import { BaseRenderer } from 'engine/renderers/BaseRenderer.js';
 
 import {
     getLocalModelMatrix,
     getGlobalViewMatrix,
     getProjectionMatrix,
-    getModels,
 } from 'engine/core/SceneUtils.js';
 
 import { Light } from './Light.js';
@@ -326,7 +325,7 @@ export class Renderer extends BaseRenderer {
         this.device.queue.writeBuffer(modelUniformBuffer, 64, normalMatrix);
         this.renderPass.setBindGroup(2, modelBindGroup);
 
-        for (const model of getModels(node)) {
+        for (const model of node.getComponentsOfType(Model)) {
             this.renderModel(model);
         }
 
