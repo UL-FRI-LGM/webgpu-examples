@@ -2,9 +2,9 @@ import { MultiKeyWeakMap } from './MultiKeyWeakMap.js';
 
 const code = `
 const positions = array(
-    vec2f(0, 0),
-    vec2f(2, 0),
-    vec2f(0, 2),
+    vec2f(-1, -1),
+    vec2f( 3, -1),
+    vec2f(-1,  3),
 );
 
 struct Interpolants {
@@ -19,8 +19,8 @@ struct Interpolants {
 fn vertex(@builtin(vertex_index) index: u32) -> Interpolants {
     var output: Interpolants;
     let position = positions[index];
-    output.position = vec4f(position * 2 - 1, 0, 1);
-    output.texcoords = position;
+    output.position = vec4f(position, 0, 1);
+    output.texcoords = position * vec2f(0.5, -0.5) + 0.5;
     return output;
 }
 
