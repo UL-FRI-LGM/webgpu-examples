@@ -16,7 +16,7 @@ const renderer = new UnlitRenderer(canvas);
 await renderer.initialize();
 
 const loader = new GLTFLoader();
-await loader.load('scene/scene.gltf');
+await loader.load(new URL('./scene/scene.gltf', import.meta.url));
 
 const scene = loader.loadScene(loader.defaultScene);
 const camera = loader.loadNode('Camera');
