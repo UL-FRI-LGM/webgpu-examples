@@ -21,10 +21,13 @@ import {
 
 export class GLTFLoader {
 
-    // Loads the GLTF JSON file and all buffers and images that it references.
-    // It also creates a cache for all future resource loading.
+    /**
+     * Loads the GLTF JSON file and all buffers and images that it references.
+     * It also creates a cache for all future resource loading.
+     * @param {URL} url
+     */
     async load(url) {
-        this.gltfUrl = new URL(url, window.location);
+        this.gltfUrl = url;
         this.gltf = await this.fetchJson(this.gltfUrl);
         this.defaultScene = this.gltf.scene ?? 0;
         this.cache = new Map();
