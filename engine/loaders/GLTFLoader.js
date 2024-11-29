@@ -445,6 +445,10 @@ export class GLTFLoader {
 
         const node = new Node();
 
+        if (gltfSpec.name !== undefined) {
+            node.name = gltfSpec.name;
+        }
+
         node.addComponent(new Transform(gltfSpec));
 
         if (gltfSpec.children) {
