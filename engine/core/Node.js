@@ -1,6 +1,7 @@
 export class Node {
 
     constructor() {
+        this.name = "";
         this.parent = null;
         this.children = [];
         this.components = [];
