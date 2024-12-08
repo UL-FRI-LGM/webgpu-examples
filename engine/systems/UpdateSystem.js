@@ -13,6 +13,8 @@ export class UpdateSystem {
             return;
         }
 
+        this.running = true;
+
         this.application.start?.();
 
         this._time = performance.now() / 1000;
@@ -25,6 +27,8 @@ export class UpdateSystem {
         if (!this.running) {
             return;
         }
+
+        this.running = false;
 
         this.application.stop?.();
 
