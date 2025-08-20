@@ -24,22 +24,10 @@ await loader.load(new URL('./scene/scene.gltf', import.meta.url));
 const scene = loader.loadScene();
 const camera = loader.loadNode('Camera');
 camera.addComponent(new FirstPersonController(camera, canvas));
-camera.isDynamic = true;
 camera.aabb = {
     min: [-0.2, -0.2, -0.2],
     max: [0.2, 0.2, 0.2],
 };
-
-loader.loadNode('Box.000').isStatic = true;
-loader.loadNode('Box.001').isStatic = true;
-loader.loadNode('Box.002').isStatic = true;
-loader.loadNode('Box.003').isStatic = true;
-loader.loadNode('Box.004').isStatic = true;
-loader.loadNode('Box.005').isStatic = true;
-loader.loadNode('Wall.000').isStatic = true;
-loader.loadNode('Wall.001').isStatic = true;
-loader.loadNode('Wall.002').isStatic = true;
-loader.loadNode('Wall.003').isStatic = true;
 
 const physics = new Physics(scene);
 for (const entity of scene) {

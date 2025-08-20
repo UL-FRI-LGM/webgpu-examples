@@ -10,9 +10,9 @@ export class Physics {
 
     update(t, dt) {
         for (const entity of this.scene) {
-            if (entity.isDynamic) {
+            if (entity.customProperties?.isDynamic) {
                 for (const other of this.scene) {
-                    if (entity !== other && other.isStatic) {
+                    if (entity !== other && other.customProperties?.isStatic) {
                         this.resolveCollision(entity, other);
                     }
                 }

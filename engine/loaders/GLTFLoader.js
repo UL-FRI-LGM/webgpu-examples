@@ -463,6 +463,10 @@ export class GLTFLoader {
             entity.addComponent(this.loadMesh(gltfSpec.mesh));
         }
 
+        if (gltfSpec.extras) {
+            entity.customProperties = structuredClone(gltfSpec.extras);
+        }
+
         this.cache.set(gltfSpec, entity);
         return entity;
     }

@@ -29,6 +29,9 @@
 			"name":"Floor"
 		},
 		{
+			"extras":{
+				"isStatic":true
+			},
 			"mesh":1,
 			"name":"Box.000",
 			"translation":[
@@ -38,6 +41,9 @@
 			]
 		},
 		{
+			"extras":{
+				"isStatic":true
+			},
 			"mesh":1,
 			"name":"Box.001",
 			"translation":[
@@ -47,6 +53,9 @@
 			]
 		},
 		{
+			"extras":{
+				"isStatic":true
+			},
 			"mesh":1,
 			"name":"Box.002",
 			"translation":[
@@ -56,6 +65,9 @@
 			]
 		},
 		{
+			"extras":{
+				"isStatic":true
+			},
 			"mesh":1,
 			"name":"Box.003",
 			"translation":[
@@ -65,6 +77,9 @@
 			]
 		},
 		{
+			"extras":{
+				"isStatic":true
+			},
 			"mesh":1,
 			"name":"Box.004",
 			"rotation":[
@@ -80,6 +95,9 @@
 			]
 		},
 		{
+			"extras":{
+				"isStatic":true
+			},
 			"mesh":1,
 			"name":"Box.005",
 			"rotation":[
@@ -95,6 +113,9 @@
 			]
 		},
 		{
+			"extras":{
+				"isStatic":true
+			},
 			"mesh":2,
 			"name":"Wall.000",
 			"translation":[
@@ -104,6 +125,9 @@
 			]
 		},
 		{
+			"extras":{
+				"isStatic":true
+			},
 			"mesh":2,
 			"name":"Wall.001",
 			"rotation":[
@@ -119,6 +143,9 @@
 			]
 		},
 		{
+			"extras":{
+				"isStatic":true
+			},
 			"mesh":2,
 			"name":"Wall.002",
 			"rotation":[
@@ -134,6 +161,9 @@
 			]
 		},
 		{
+			"extras":{
+				"isStatic":true
+			},
 			"mesh":2,
 			"name":"Wall.003",
 			"rotation":[
@@ -150,6 +180,9 @@
 		},
 		{
 			"camera":0,
+			"extras":{
+				"isDynamic":true
+			},
 			"name":"Camera",
 			"translation":[
 				-0.06577014923095703,
