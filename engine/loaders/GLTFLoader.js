@@ -4,7 +4,8 @@ import {
     Material,
     Mesh,
     Model,
-    Node,
+    Entity,
+    Parent,
     Primitive,
     Sampler,
     Texture,
@@ -443,29 +444,30 @@ export class GLTFLoader {
             return this.cache.get(gltfSpec);
         }
 
-        const node = new Node();
+        const entity = new Entity();
 
-        node.addComponent(new Transform(gltfSpec));
+        entity.addComponent(new Transform(gltfSpec));
 
         if (gltfSpec.children) {
             for (const childIndex of gltfSpec.children) {
-                node.addChild(this.loadNode(childIndex));
+                const childNode = this.loadNode(childIndex);
+                childNode.addComponent(new Parent(entity));
             }
         }
 
         if (gltfSpec.camera !== undefined) {
-            node.addComponent(this.loadCamera(gltfSpec.camera));
+            entity.addComponent(this.loadCamera(gltfSpec.camera));
         }
 
         if (gltfSpec.mesh !== undefined) {
-            node.addComponent(this.loadMesh(gltfSpec.mesh));
+            entity.addComponent(this.loadMesh(gltfSpec.mesh));
         }
 
-        this.cache.set(gltfSpec, node);
-        return node;
+        this.cache.set(gltfSpec, entity);
+        return entity;
     }
 
-    loadScene(nameOrIndex) {
+    loadScene(nameOrIndex = this.defaultScene) {
         const gltfSpec = this.findByNameOrIndex(this.gltf.scenes, nameOrIndex);
         if (!gltfSpec) {
             return null;
@@ -474,11 +476,9 @@ export class GLTFLoader {
             return this.cache.get(gltfSpec);
         }
 
-        const scene = new Node();
+        const scene = [];
         if (gltfSpec.nodes) {
-            for (const nodeIndex of gltfSpec.nodes) {
-                scene.addChild(this.loadNode(nodeIndex));
-            }
+            scene.push(...gltfSpec.nodes.map(nodeIndex => this.loadNode(nodeIndex)));
         }
 
         this.cache.set(gltfSpec, scene);

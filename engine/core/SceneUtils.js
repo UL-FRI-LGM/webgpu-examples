@@ -2,34 +2,36 @@ import { mat4 } from 'glm';
 
 import { Camera } from './Camera.js';
 import { Model } from './Model.js';
+import { Parent } from './Parent.js';
 import { Transform } from './Transform.js';
 
-export function getLocalModelMatrix(node) {
+export function getLocalModelMatrix(entity) {
     const matrix = mat4.create();
-    for (const transform of node.getComponentsOfType(Transform)) {
+    for (const transform of entity.getComponentsOfType(Transform)) {
         matrix.multiply(transform.matrix);
     }
     return matrix;
 }
 
-export function getGlobalModelMatrix(node) {
-    if (node.parent) {
-        const parentMatrix = getGlobalModelMatrix(node.parent);
-        const modelMatrix = getLocalModelMatrix(node);
+export function getGlobalModelMatrix(entity) {
+    const parent = entity.getComponentOfType(Parent)?.entity;
+    if (parent) {
+        const parentMatrix = getGlobalModelMatrix(parent);
+        const modelMatrix = getLocalModelMatrix(entity);
         return parentMatrix.multiply(modelMatrix);
     } else {
-        return getLocalModelMatrix(node);
+        return getLocalModelMatrix(entity);
     }
 }
 
-export function getLocalViewMatrix(node) {
-    return getLocalModelMatrix(node).invert();
+export function getLocalViewMatrix(entity) {
+    return getLocalModelMatrix(entity).invert();
 }
 
-export function getGlobalViewMatrix(node) {
-    return getGlobalModelMatrix(node).invert();
+export function getGlobalViewMatrix(entity) {
+    return getGlobalModelMatrix(entity).invert();
 }
 
-export function getProjectionMatrix(node) {
-    return node.getComponentOfType(Camera)?.projectionMatrix ?? mat4.create();
+export function getProjectionMatrix(entity) {
+    return entity.getComponentOfType(Camera)?.projectionMatrix ?? mat4.create();
 }

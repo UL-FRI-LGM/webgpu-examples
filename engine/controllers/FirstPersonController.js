@@ -4,7 +4,7 @@ import { Transform } from '../core/Transform.js';
 
 export class FirstPersonController {
 
-    constructor(node, domElement, {
+    constructor(entity, domElement, {
         pitch = 0,
         yaw = 0,
         velocity = [0, 0, 0],
@@ -13,7 +13,7 @@ export class FirstPersonController {
         decay = 0.99999,
         pointerSensitivity = 0.002,
     } = {}) {
-        this.node = node;
+        this.entity = entity;
         this.domElement = domElement;
 
         this.keys = {};
@@ -92,7 +92,7 @@ export class FirstPersonController {
             vec3.scale(this.velocity, this.velocity, this.maxSpeed / speed);
         }
 
-        const transform = this.node.getComponentOfType(Transform);
+        const transform = this.entity.getComponentOfType(Transform);
         if (transform) {
             // Update translation based on velocity.
             vec3.scaleAndAdd(transform.translation,

@@ -4,14 +4,14 @@ import { Transform } from '../core/Transform.js';
 
 export class LinearAnimator {
 
-    constructor(node, {
+    constructor(entity, {
         startPosition = [0, 0, 0],
         endPosition = [0, 0, 0],
         startTime = 0,
         duration = 1,
         loop = false,
     } = {}) {
-        this.node = node;
+        this.entity = entity;
 
         this.startPosition = startPosition;
         this.endPosition = endPosition;
@@ -43,7 +43,7 @@ export class LinearAnimator {
     }
 
     updateNode(interpolation) {
-        const transform = this.node.getComponentOfType(Transform);
+        const transform = this.entity.getComponentOfType(Transform);
         if (!transform) {
             return;
         }

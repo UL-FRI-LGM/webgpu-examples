@@ -4,14 +4,14 @@ import { Transform } from '../core/Transform.js';
 
 export class TurntableController {
 
-    constructor(node, domElement, {
+    constructor(entity, domElement, {
         pitch = 0,
         yaw = 0,
         distance = 1,
         moveSensitivity = 0.004,
         zoomSensitivity = 0.002,
     } = {}) {
-        this.node = node;
+        this.entity = entity;
         this.domElement = domElement;
 
         this.pitch = pitch;
@@ -69,7 +69,7 @@ export class TurntableController {
     }
 
     update() {
-        const transform = this.node.getComponentOfType(Transform);
+        const transform = this.entity.getComponentOfType(Transform);
         if (!transform) {
             return;
         }

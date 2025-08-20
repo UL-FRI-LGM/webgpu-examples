@@ -6,6 +6,7 @@ import { Camera, Model } from '../core.js';
 
 import {
     getLocalModelMatrix,
+    getGlobalModelMatrix,
     getGlobalViewMatrix,
     getProjectionMatrix,
 } from '../core/SceneUtils.js';
@@ -72,9 +73,9 @@ export class UnlitRenderer extends BaseRenderer {
         });
     }
 
-    prepareNode(node) {
-        if (this.gpuObjects.has(node)) {
-            return this.gpuObjects.get(node);
+    prepareEntity(entity) {
+        if (this.gpuObjects.has(entity)) {
+            return this.gpuObjects.get(entity);
         }
 
         const modelUniformBuffer = this.device.createBuffer({
@@ -90,7 +91,7 @@ export class UnlitRenderer extends BaseRenderer {
         });
 
         const gpuObjects = { modelUniformBuffer, modelBindGroup };
-        this.gpuObjects.set(node, gpuObjects);
+        this.gpuObjects.set(entity, gpuObjects);
         return gpuObjects;
     }
 
@@ -155,7 +156,7 @@ export class UnlitRenderer extends BaseRenderer {
         return gpuObjects;
     }
 
-    render(scene, camera) {
+    render(entities, camera) {
         if (this.depthTexture.width !== this.canvas.width || this.depthTexture.height !== this.canvas.height) {
             this.recreateDepthTexture();
         }
@@ -187,28 +188,25 @@ export class UnlitRenderer extends BaseRenderer {
         this.device.queue.writeBuffer(cameraUniformBuffer, 64, projectionMatrix);
         this.renderPass.setBindGroup(0, cameraBindGroup);
 
-        this.renderNode(scene);
+        for (const entity of entities) {
+            this.renderEntity(entity);
+        }
 
         this.renderPass.end();
         this.device.queue.submit([encoder.finish()]);
     }
 
-    renderNode(node, modelMatrix = mat4.create()) {
-        const localMatrix = getLocalModelMatrix(node);
-        modelMatrix = mat4.multiply(mat4.create(), modelMatrix, localMatrix);
+    renderEntity(entity) {
+        const modelMatrix = getGlobalModelMatrix(entity);
         const normalMatrix = mat4.normalFromMat4(mat4.create(), modelMatrix);
 
-        const { modelUniformBuffer, modelBindGroup } = this.prepareNode(node);
+        const { modelUniformBuffer, modelBindGroup } = this.prepareEntity(entity);
         this.device.queue.writeBuffer(modelUniformBuffer, 0, modelMatrix);
         this.device.queue.writeBuffer(modelUniformBuffer, 64, normalMatrix);
         this.renderPass.setBindGroup(1, modelBindGroup);
 
-        for (const model of node.getComponentsOfType(Model)) {
+        for (const model of entity.getComponentsOfType(Model)) {
             this.renderModel(model);
-        }
-
-        for (const child of node.children) {
-            this.renderNode(child, modelMatrix);
         }
     }
 

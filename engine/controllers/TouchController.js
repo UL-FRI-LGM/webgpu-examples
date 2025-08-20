@@ -4,7 +4,7 @@ import { Transform } from 'engine/core/Transform.js';
 
 export class TouchController {
 
-    constructor(node, domElement, {
+    constructor(entity, domElement, {
         translation = [0, 0, 0],
         rotation = [0, 0, 0, 1],
         distance = 2,
@@ -12,7 +12,7 @@ export class TouchController {
         rotateSensitivity = 0.004,
         wheelSensitivity = 0.002,
     } = {}) {
-        this.node = node;
+        this.entity = entity;
         this.domElement = domElement;
 
         this.translation = translation;
@@ -130,7 +130,7 @@ export class TouchController {
     }
 
     update() {
-        const transform = this.node.getComponentOfType(Transform);
+        const transform = this.entity.getComponentOfType(Transform);
         if (!transform) {
             return;
         }

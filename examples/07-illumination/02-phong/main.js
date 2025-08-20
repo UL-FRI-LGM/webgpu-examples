@@ -7,8 +7,8 @@ import { TouchController } from 'engine/controllers/TouchController.js';
 
 import {
     Camera,
+    Entity,
     Model,
-    Node,
     Transform,
 } from 'engine/core.js';
 
@@ -19,34 +19,34 @@ const canvas = document.querySelector('canvas');
 const renderer = new Renderer(canvas);
 await renderer.initialize();
 
-const gltfLoader = new GLTFLoader();
-await gltfLoader.load(new URL('../../../models/monkey/monkey.gltf', import.meta.url));
+const loader = new GLTFLoader();
+await loader.load(new URL('../../../models/monkey/monkey.gltf', import.meta.url));
 
-const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
-const camera = gltfLoader.loadNode('Camera');
+const scene = loader.loadScene();
+const camera = loader.loadNode('Camera');
 camera.addComponent(new TouchController(camera, canvas, { distance: 5 }));
 
-const model = gltfLoader.loadNode('Suzanne');
+const model = loader.loadNode('Suzanne');
 const material = model.getComponentOfType(Model).primitives[0].material;
 material.diffuse = 1;
 material.specular = 1;
 material.shininess = 50;
 
-const light = new Node();
+const light = new Entity();
 light.addComponent(new Transform({
     translation: [0, 2, 2],
 }));
 light.addComponent(new Light({
     intensity: 3,
 }));
-scene.addChild(light);
+scene.push(light);
 
 function update(time, dt) {
-    scene.traverse(node => {
-        for (const component of node.components) {
+    for (const entity of scene) {
+        for (const component of entity.components) {
             component.update?.(time, dt);
         }
-    });
+    }
 }
 
 function render() {

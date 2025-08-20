@@ -21,7 +21,7 @@ await renderer.initialize();
 const loader = new GLTFLoader();
 await loader.load(new URL('./scene/scene.gltf', import.meta.url));
 
-const scene = loader.loadScene(loader.defaultScene);
+const scene = loader.loadScene();
 const camera = loader.loadNode('Camera');
 camera.addComponent(new FirstPersonController(camera, canvas));
 camera.isDynamic = true;
@@ -42,22 +42,22 @@ loader.loadNode('Wall.002').isStatic = true;
 loader.loadNode('Wall.003').isStatic = true;
 
 const physics = new Physics(scene);
-scene.traverse(node => {
-    const model = node.getComponentOfType(Model);
+for (const entity of scene) {
+    const model = entity.getComponentOfType(Model);
     if (!model) {
-        return;
+        continue;
     }
 
     const boxes = model.primitives.map(primitive => calculateAxisAlignedBoundingBox(primitive.mesh));
-    node.aabb = mergeAxisAlignedBoundingBoxes(boxes);
-});
+    entity.aabb = mergeAxisAlignedBoundingBoxes(boxes);
+}
 
 function update(time, dt) {
-    scene.traverse(node => {
-        for (const component of node.components) {
+    for (const entity of scene) {
+        for (const component of entity.components) {
             component.update?.(time, dt);
         }
-    });
+    }
 
     physics.update(time, dt);
 }

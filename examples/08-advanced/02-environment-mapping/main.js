@@ -2,14 +2,7 @@ import { GUI } from 'dat';
 
 import {
     Camera,
-    Material,
-    Mesh,
     Model,
-    Node,
-    Sampler,
-    Texture,
-    Transform,
-    Vertex,
 } from 'engine/core.js';
 
 import { quat } from 'glm';
@@ -28,14 +21,14 @@ const canvas = document.querySelector('canvas');
 const renderer = new Renderer(canvas);
 await renderer.initialize();
 
-const gltfLoader = new GLTFLoader();
-await gltfLoader.load(new URL('../../../models/monkey/monkey.gltf', import.meta.url));
+const loader = new GLTFLoader();
+await loader.load(new URL('../../../models/monkey/monkey.gltf', import.meta.url));
 
-const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
-const camera = gltfLoader.loadNode('Camera');
+const scene = loader.loadScene();
+const camera = loader.loadNode('Camera');
 camera.addComponent(new TouchController(camera, canvas, { distance: 5 }));
 
-const model = gltfLoader.loadNode('Suzanne');
+const model = loader.loadNode('Suzanne');
 const material = model.getComponentOfType(Model).primitives[0].material;
 material.reflectance = 1;
 material.transmittance = 1;
@@ -54,11 +47,11 @@ const environmentImages = await Promise.all([
 renderer.setEnvironment(environmentImages);
 
 function update(t, dt) {
-    scene.traverse(node => {
-        for (const component of node.components) {
+    for (const entity of scene) {
+        for (const component of entity.components) {
             component.update?.(t, dt);
         }
-    });
+    }
 }
 
 function render() {

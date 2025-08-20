@@ -5,8 +5,8 @@ import { ImageLoader } from 'engine/loaders/ImageLoader.js';
 import { GLTFLoader } from 'engine/loaders/GLTFLoader.js';
 
 import {
-    Node,
     Camera,
+    Entity,
     Transform,
 } from 'engine/core.js';
 
@@ -19,14 +19,14 @@ const canvas = document.querySelector('canvas');
 const renderer = new Renderer(canvas);
 await renderer.initialize();
 
-const gltfLoader = new GLTFLoader();
-await gltfLoader.load(new URL('../../../models/monkey/monkey.gltf', import.meta.url));
+const loader = new GLTFLoader();
+await loader.load(new URL('../../../models/monkey/monkey.gltf', import.meta.url));
 
-const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
-const camera = gltfLoader.loadNode('Camera');
+const scene = loader.loadScene();
+const camera = loader.loadNode('Camera');
 camera.addComponent(new TouchController(camera, canvas, { distance: 5 }));
 
-const light = new Node();
+const light = new Entity();
 light.addComponent(new Light());
 light.addComponent(new Camera({
     near: 5,
@@ -42,14 +42,14 @@ light.addComponent({
         transform.translation[0] = Math.sin(t * 10);
     }
 })
-scene.addChild(light);
+scene.push(light);
 
 function update(t, dt) {
-    scene.traverse(node => {
-        for (const component of node.components) {
+    for (const entity of scene) {
+        for (const component of entity.components) {
             component.update?.(t, dt);
         }
-    });
+    }
 }
 
 function render() {

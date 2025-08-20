@@ -7,8 +7,8 @@ import { ImageLoader } from 'engine/loaders/ImageLoader.js';
 import { GLTFLoader } from 'engine/loaders/GLTFLoader.js';
 
 import {
-    Node,
     Camera,
+    Entity,
     Texture,
     Transform,
     Sampler,
@@ -23,14 +23,14 @@ const canvas = document.querySelector('canvas');
 const renderer = new Renderer(canvas);
 await renderer.initialize();
 
-const gltfLoader = new GLTFLoader();
-await gltfLoader.load(new URL('../../../models/monkey/monkey.gltf', import.meta.url));
+const loader = new GLTFLoader();
+await loader.load(new URL('../../../models/monkey/monkey.gltf', import.meta.url));
 
-const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
-const camera = gltfLoader.loadNode('Camera');
+const scene = loader.loadScene();
+const camera = loader.loadNode('Camera');
 camera.addComponent(new TouchController(camera, canvas, { distance: 5 }));
 
-const light = new Node();
+const light = new Entity();
 light.addComponent(new Light({
     decalTexture: new Texture({
         image: await new ImageLoader().load(new URL('decal.webp', import.meta.url)),
@@ -54,14 +54,14 @@ light.addComponent({
             .rotateY(Math.sin(t) * 0.5);
     }
 })
-scene.addChild(light);
+scene.push(light);
 
 function update(t, dt) {
-    scene.traverse(node => {
-        for (const component of node.components) {
+    for (const entity of scene) {
+        for (const component of entity.components) {
             component.update?.(t, dt);
         }
-    });
+    }
 }
 
 function render() {

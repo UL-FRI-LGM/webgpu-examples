@@ -4,14 +4,14 @@ import { Transform } from '../core/Transform.js';
 
 export class RotateAnimator {
 
-    constructor(node, {
+    constructor(entity, {
         startRotation = [0, 0, 0, 1],
         endRotation = [0, 0, 0, 1],
         startTime = 0,
         duration = 1,
         loop = false,
     } = {}) {
-        this.node = node;
+        this.entity = entity;
 
         this.startRotation = startRotation;
         this.endRotation = endRotation;
@@ -43,7 +43,7 @@ export class RotateAnimator {
     }
 
     updateNode(interpolation) {
-        const transform = this.node.getComponentOfType(Transform);
+        const transform = this.entity.getComponentOfType(Transform);
         if (!transform) {
             return;
         }

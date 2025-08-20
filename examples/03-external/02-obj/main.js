@@ -6,9 +6,9 @@ import { TouchController } from 'engine/controllers/TouchController.js';
 
 import {
     Camera,
+    Entity,
     Material,
     Model,
-    Node,
     Primitive,
     Sampler,
     Texture,
@@ -26,7 +26,7 @@ const canvas = document.querySelector('canvas');
 const renderer = new UnlitRenderer(canvas);
 await renderer.initialize();
 
-const model = new Node();
+const model = new Entity();
 model.addComponent(new Transform());
 model.addComponent(new Model({
     primitives: [
@@ -42,23 +42,21 @@ model.addComponent(new Model({
     ],
 }));
 
-const camera = new Node();
+const camera = new Entity();
 camera.addComponent(new Transform());
 camera.addComponent(new Camera());
 camera.addComponent(new TouchController(camera, canvas, {
     distance: 5,
 }));
 
-const scene = new Node();
-scene.addChild(model);
-scene.addChild(camera);
+const scene = [model, camera];
 
 function update(time, dt) {
-    scene.traverse(node => {
-        for (const component of node.components) {
+    for (const entity of scene) {
+        for (const component of entity.components) {
             component.update?.(time, dt);
         }
-    });
+    }
 }
 
 function render() {

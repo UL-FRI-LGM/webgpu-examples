@@ -18,7 +18,7 @@ await renderer.initialize();
 const loader = new GLTFLoader();
 await loader.load(new URL('./scene/scene.gltf', import.meta.url));
 
-const scene = loader.loadScene(loader.defaultScene);
+const scene = loader.loadScene();
 const camera = loader.loadNode('Camera');
 camera.addComponent(new TurntableController(camera, canvas, {
     distance: 10,
@@ -41,11 +41,11 @@ cube.addComponent({
 });
 
 function update(t, dt) {
-    scene.traverse(node => {
-        for (const component of node.components) {
+    for (const entity of scene) {
+        for (const component of entity.components) {
             component.update?.(t, dt);
         }
-    });
+    }
 }
 
 function render() {

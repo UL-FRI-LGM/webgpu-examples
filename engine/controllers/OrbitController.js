@@ -4,13 +4,13 @@ import { Transform } from '../core/Transform.js';
 
 export class OrbitController {
 
-    constructor(node, domElement, {
+    constructor(entity, domElement, {
         rotation = [0, 0, 0, 1],
         distance = 2,
         moveSensitivity = 0.004,
         zoomSensitivity = 0.002,
     } = {}) {
-        this.node = node;
+        this.entity = entity;
         this.domElement = domElement;
 
         this.rotation = rotation;
@@ -62,7 +62,7 @@ export class OrbitController {
     }
 
     update() {
-        const transform = this.node.getComponentOfType(Transform);
+        const transform = this.entity.getComponentOfType(Transform);
         if (!transform) {
             return;
         }

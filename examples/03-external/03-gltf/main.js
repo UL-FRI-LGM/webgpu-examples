@@ -13,12 +13,12 @@ await renderer.initialize();
 const loader = new GLTFLoader();
 await loader.load(new URL('../../../models/monkey/monkey.gltf', import.meta.url));
 
-const scene = loader.loadScene(loader.defaultScene);
+const scene = loader.loadScene();
 if (!scene) {
     throw new Error('A default scene is required to run this example');
 }
 
-const camera = scene.find(node => node.getComponentOfType(Camera));
+const camera = scene.find(entity => entity.getComponentOfType(Camera));
 if (!camera) {
     throw new Error('A camera in the scene is require to run this example');
 }

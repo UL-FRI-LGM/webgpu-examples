@@ -9,9 +9,9 @@ import { FirstPersonController } from 'engine/controllers/FirstPersonController.
 
 import {
     Camera,
+    Entity,
     Material,
     Model,
-    Node,
     Primitive,
     Sampler,
     Texture,
@@ -29,17 +29,14 @@ const canvas = document.querySelector('canvas');
 const renderer = new UnlitRenderer(canvas);
 await renderer.initialize();
 
-const scene = new Node();
-
-const camera = new Node();
+const camera = new Entity();
 camera.addComponent(new Transform({
     translation: [0, 1, 0],
 }));
 camera.addComponent(new Camera());
 camera.addComponent(new FirstPersonController(camera, canvas));
-scene.addChild(camera);
 
-const floor = new Node();
+const floor = new Entity();
 floor.addComponent(new Transform({
     scale: [10, 1, 10],
 }));
@@ -61,14 +58,15 @@ floor.addComponent(new Model({
         }),
     ],
 }));
-scene.addChild(floor);
+
+const scene = [floor, camera];
 
 function update(t, dt) {
-    scene.traverse(node => {
-        for (const component of node.components) {
+    for (const entity of scene) {
+        for (const component of entity.components) {
             component.update?.(t, dt);
         }
-    });
+    }
 }
 
 function render() {

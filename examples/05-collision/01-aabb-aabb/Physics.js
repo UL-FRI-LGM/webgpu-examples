@@ -9,15 +9,15 @@ export class Physics {
     }
 
     update(t, dt) {
-        this.scene.traverse(node => {
-            if (node.isDynamic) {
-                this.scene.traverse(other => {
-                    if (node !== other && other.isStatic) {
-                        this.resolveCollision(node, other);
+        for (const entity of this.scene) {
+            if (entity.isDynamic) {
+                for (const other of this.scene) {
+                    if (entity !== other && other.isStatic) {
+                        this.resolveCollision(entity, other);
                     }
-                });
+                }
             }
-        });
+        }
     }
 
     intervalIntersection(min1, max1, min2, max2) {
@@ -30,10 +30,10 @@ export class Physics {
             && this.intervalIntersection(aabb1.min[2], aabb1.max[2], aabb2.min[2], aabb2.max[2]);
     }
 
-    getTransformedAABB(node) {
+    getTransformedAABB(entity) {
         // Transform all vertices of the AABB from local to global space.
-        const matrix = getGlobalModelMatrix(node);
-        const { min, max } = node.aabb;
+        const matrix = getGlobalModelMatrix(entity);
+        const { min, max } = entity.aabb;
         const vertices = [
             [min[0], min[1], min[2]],
             [min[0], min[1], max[2]],
@@ -65,7 +65,7 @@ export class Physics {
             return;
         }
 
-        // Move node A minimally to avoid collision.
+        // Move entity A minimally to avoid collision.
         const diffa = vec3.sub(vec3.create(), bBox.max, aBox.min);
         const diffb = vec3.sub(vec3.create(), aBox.max, bBox.min);
 

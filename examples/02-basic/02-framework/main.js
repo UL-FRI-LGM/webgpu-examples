@@ -9,22 +9,22 @@ import { UpdateSystem } from 'engine/systems/UpdateSystem.js';
 
 import { UnlitRenderer } from 'engine/renderers/UnlitRenderer.js';
 
-const gltfLoader = new GLTFLoader();
-await gltfLoader.load(new URL('../../../models/monkey/monkey.gltf', import.meta.url));
+const loader = new GLTFLoader();
+await loader.load(new URL('../../../models/monkey/monkey.gltf', import.meta.url));
 
-const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
-const camera = scene.find(node => node.getComponentOfType(Camera));
+const scene = loader.loadScene();
+const camera = scene.find(entity => entity.getComponentOfType(Camera));
 
 const canvas = document.querySelector('canvas');
 const renderer = new UnlitRenderer(canvas);
 await renderer.initialize();
 
 function update(t, dt) {
-    scene.traverse(node => {
-        for (const component of node.components) {
+    for (const entity of scene) {
+        for (const component of entity.components) {
             component.update?.(t, dt);
         }
-    });
+    }
 }
 
 function render() {
