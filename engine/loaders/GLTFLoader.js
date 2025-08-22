@@ -11,7 +11,7 @@ import {
     Texture,
     Transform,
     Vertex,
-} from '../core.js';
+} from '../core/core.js';
 
 // TODO: GLB support
 // TODO: accessors with no buffer views (zero-initialized)

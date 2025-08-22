@@ -7,7 +7,7 @@ import { GLTFLoader } from 'engine/loaders/GLTFLoader.js';
 import { UnlitRenderer } from 'engine/renderers/UnlitRenderer.js';
 import { TurntableController } from 'engine/controllers/TurntableController.js';
 import { getGlobalModelMatrix } from 'engine/core/SceneUtils.js';
-import { Camera, Transform } from 'engine/core.js';
+import { Camera, Transform } from 'engine/core/core.js';
 
 import * as EasingFunctions from 'engine/animators/EasingFunctions.js';
 

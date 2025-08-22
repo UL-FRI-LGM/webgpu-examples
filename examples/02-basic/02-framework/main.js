@@ -1,6 +1,6 @@
 import { quat } from 'glm';
 
-import { Camera } from 'engine/core.js';
+import { Camera } from 'engine/core/core.js';
 
 import { GLTFLoader } from 'engine/loaders/GLTFLoader.js';
 

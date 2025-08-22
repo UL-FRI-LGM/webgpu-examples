@@ -10,7 +10,7 @@ import {
     Entity,
     Model,
     Transform,
-} from 'engine/core.js';
+} from 'engine/core/core.js';
 
 import { Renderer } from './Renderer.js';
 import { Light } from './Light.js';

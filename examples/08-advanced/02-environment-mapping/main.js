@@ -3,7 +3,7 @@ import { GUI } from 'dat';
 import {
     Camera,
     Model,
-} from 'engine/core.js';
+} from 'engine/core/core.js';
 
 import { quat } from 'glm';
 

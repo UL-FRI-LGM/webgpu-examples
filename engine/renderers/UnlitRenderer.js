@@ -2,7 +2,7 @@ import { mat4 } from 'glm';
 
 import * as WebGPU from '../WebGPU.js';
 
-import { Camera, Model } from '../core.js';
+import { Camera, Model } from '../core/core.js';
 
 import {
     getLocalModelMatrix,
@@ -86,7 +86,7 @@ export class UnlitRenderer extends BaseRenderer {
         const modelBindGroup = this.device.createBindGroup({
             layout: this.pipeline.getBindGroupLayout(1),
             entries: [
-                { binding: 0, resource: { buffer: modelUniformBuffer } },
+                { binding: 0, resource: modelUniformBuffer },
             ],
         });
 

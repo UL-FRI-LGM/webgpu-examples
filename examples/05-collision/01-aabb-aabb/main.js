@@ -5,7 +5,7 @@ import { GLTFLoader } from 'engine/loaders/GLTFLoader.js';
 import { UnlitRenderer } from 'engine/renderers/UnlitRenderer.js';
 import { FirstPersonController } from 'engine/controllers/FirstPersonController.js';
 
-import { Camera, Model } from 'engine/core.js';
+import { Camera, Model } from 'engine/core/core.js';
 
 import {
     calculateAxisAlignedBoundingBox,

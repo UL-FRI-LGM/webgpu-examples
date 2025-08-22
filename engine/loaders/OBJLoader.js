@@ -1,4 +1,4 @@
-import { Mesh, Vertex } from '../core.js';
+import { Mesh, Vertex } from '../core/core.js';
 
 export class OBJLoader {
 

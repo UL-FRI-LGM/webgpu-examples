@@ -4,7 +4,7 @@ import { UpdateSystem } from 'engine/systems/UpdateSystem.js';
 import { GLTFLoader } from 'engine/loaders/GLTFLoader.js';
 import { UnlitRenderer } from 'engine/renderers/UnlitRenderer.js';
 
-import { Camera } from 'engine/core.js';
+import { Camera } from 'engine/core/core.js';
 
 const canvas = document.querySelector('canvas');
 const renderer = new UnlitRenderer(canvas);

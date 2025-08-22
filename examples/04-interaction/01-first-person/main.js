@@ -16,7 +16,7 @@ import {
     Sampler,
     Texture,
     Transform,
-} from 'engine/core.js';
+} from 'engine/core/core.js';
 
 import { loadResources } from 'engine/loaders/resources.js';
 

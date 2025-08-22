@@ -2,7 +2,7 @@ import { vec3, mat4 } from 'glm';
 
 import * as WebGPU from 'engine/WebGPU.js';
 
-import { Camera, Model } from 'engine/core.js';
+import { Camera, Model } from 'engine/core/core.js';
 import { BaseRenderer } from 'engine/renderers/BaseRenderer.js';
 
 import {

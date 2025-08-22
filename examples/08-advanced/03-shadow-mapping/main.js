@@ -8,7 +8,7 @@ import {
     Camera,
     Entity,
     Transform,
-} from 'engine/core.js';
+} from 'engine/core/core.js';
 
 import { TouchController } from 'engine/controllers/TouchController.js';
 
