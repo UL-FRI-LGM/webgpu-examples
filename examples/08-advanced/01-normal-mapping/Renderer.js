@@ -98,7 +98,7 @@ export class Renderer extends BaseRenderer {
         const modelBindGroup = this.device.createBindGroup({
             layout: this.pipeline.getBindGroupLayout(2),
             entries: [
-                { binding: 0, resource: { buffer: modelUniformBuffer } },
+                { binding: 0, resource: modelUniformBuffer },
             ],
         });
 
@@ -120,7 +120,7 @@ export class Renderer extends BaseRenderer {
         const cameraBindGroup = this.device.createBindGroup({
             layout: this.pipeline.getBindGroupLayout(0),
             entries: [
-                { binding: 0, resource: { buffer: cameraUniformBuffer } },
+                { binding: 0, resource: cameraUniformBuffer },
             ],
         });
 
@@ -142,7 +142,7 @@ export class Renderer extends BaseRenderer {
         const lightBindGroup = this.device.createBindGroup({
             layout: this.pipeline.getBindGroupLayout(1),
             entries: [
-                { binding: 0, resource: { buffer: lightUniformBuffer } },
+                { binding: 0, resource: lightUniformBuffer },
             ],
         });
 
@@ -180,7 +180,7 @@ export class Renderer extends BaseRenderer {
         const materialBindGroup = this.device.createBindGroup({
             layout: this.pipeline.getBindGroupLayout(3),
             entries: [
-                { binding: 0, resource: { buffer: materialUniformBuffer } },
+                { binding: 0, resource: materialUniformBuffer },
                 { binding: 1, resource: baseTexture.gpuTexture.createView() },
                 { binding: 2, resource: baseTexture.gpuSampler },
                 { binding: 3, resource: normalTexture.gpuTexture.createView() },

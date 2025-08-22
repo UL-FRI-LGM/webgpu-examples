@@ -76,7 +76,7 @@ const bindGroup = device.createBindGroup({
     entries: [
         {
             binding: 0,
-            resource: { buffer: uniformBuffer },
+            resource: uniformBuffer,
         },
     ],
 });
