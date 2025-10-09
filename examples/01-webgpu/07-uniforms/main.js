@@ -94,7 +94,7 @@ function render() {
     const renderPass = encoder.beginRenderPass({
         colorAttachments: [
             {
-                view: context.getCurrentTexture().createView(),
+                view: context.getCurrentTexture(),
                 clearValue: [1, 1, 1, 1],
                 loadOp: 'clear',
                 storeOp: 'store',

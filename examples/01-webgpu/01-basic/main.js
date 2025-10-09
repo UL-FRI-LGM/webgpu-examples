@@ -10,7 +10,7 @@ const encoder = device.createCommandEncoder();
 const renderPass = encoder.beginRenderPass({
     colorAttachments: [
         {
-            view: context.getCurrentTexture().createView(),
+            view: context.getCurrentTexture(),
             clearValue: [1, 0.6, 0.2, 1],
             loadOp: 'clear',
             storeOp: 'store',

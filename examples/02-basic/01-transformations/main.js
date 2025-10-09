@@ -127,14 +127,14 @@ function render() {
     const renderPass = encoder.beginRenderPass({
         colorAttachments: [
             {
-                view: context.getCurrentTexture().createView(),
+                view: context.getCurrentTexture(),
                 clearValue: [1, 1, 1, 1],
                 loadOp: 'clear',
                 storeOp: 'store',
             }
         ],
         depthStencilAttachment: {
-            view: depthTexture.createView(),
+            view: depthTexture,
             depthClearValue: 1,
             depthLoadOp: 'clear',
             depthStoreOp: 'discard',

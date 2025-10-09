@@ -103,7 +103,7 @@ const bindGroup = device.createBindGroup({
         },
         {
             binding: 1,
-            resource: texture.createView(),
+            resource: texture,
         },
         {
             binding: 2,
@@ -125,7 +125,7 @@ function render() {
     const renderPass = encoder.beginRenderPass({
         colorAttachments: [
             {
-                view: context.getCurrentTexture().createView(),
+                view: context.getCurrentTexture(),
                 clearValue: [1, 1, 1, 1],
                 loadOp: 'clear',
                 storeOp: 'store',

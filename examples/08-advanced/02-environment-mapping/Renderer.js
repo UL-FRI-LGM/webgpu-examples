@@ -252,7 +252,7 @@ export class Renderer extends BaseRenderer {
             layout: this.pipeline.getBindGroupLayout(2),
             entries: [
                 { binding: 0, resource: materialUniformBuffer },
-                { binding: 1, resource: baseTexture.gpuTexture.createView() },
+                { binding: 1, resource: baseTexture.gpuTexture },
                 { binding: 2, resource: baseTexture.gpuSampler },
             ],
         });
@@ -271,14 +271,14 @@ export class Renderer extends BaseRenderer {
         this.renderPass = encoder.beginRenderPass({
             colorAttachments: [
                 {
-                    view: this.context.getCurrentTexture().createView(),
+                    view: this.context.getCurrentTexture(),
                     clearValue: [1, 1, 1, 1],
                     loadOp: 'clear',
                     storeOp: 'store',
                 }
             ],
             depthStencilAttachment: {
-                view: this.depthTexture.createView(),
+                view: this.depthTexture,
                 depthClearValue: 1,
                 depthLoadOp: 'clear',
                 depthStoreOp: 'discard',
