@@ -6,7 +6,7 @@ import { UnlitRenderer } from 'engine/renderers/UnlitRenderer.js';
 import { Camera, Entity, Transform } from 'engine/core/core.js';
 import { OrbitController } from 'engine/controllers/OrbitController.js';
 
-import { Animation } from './Animation.js';
+import { loadAnimations } from './GLTFAnimationUtils.js';
 
 
 const canvas = document.querySelector('canvas');
@@ -15,48 +15,6 @@ await renderer.initialize();
 
 const loader = new GLTFLoader();
 await loader.load(new URL('../../../models/animated_cube/AnimatedCube.gltf', import.meta.url));
-
-function loadAnimation(gltfSpec, scene) {
-    if (loader.cache.has(gltfSpec)) {
-        return loader.cache.get(gltfSpec);
-    }
-
-    if (gltfSpec.channels === undefined || gltfSpec.samplers === undefined) {
-        return null;
-    }
-
-    for (const channel of gltfSpec.channels) {
-        const keyframes = [];
-        const values = [];
-
-        const target = channel.target;
-        if (target.node === undefined) {
-            continue;
-        }
-        const entity = scene[target.node];
-        const transform = entity.getComponentOfType(Transform);
-        
-        const sampler = gltfSpec.samplers[channel.sampler];
-        const keyframeAccessor = loader.loadAccessor(sampler.input);
-        const interpolation = sampler.interpolation ?? 'LINEAR';
-        const valuesAccessor = loader.loadAccessor(sampler.output);
-
-        for (let i = 0; i < keyframeAccessor.count; i++) {
-            keyframes.push(...keyframeAccessor.get(i));
-            values.push(valuesAccessor.get(i));
-        }
-
-        const animation = new Animation({
-            transform,
-            type: target.path,
-            interpolation,
-            keyframes,
-            values,
-            fps: 1
-        });
-        entity.addComponent(animation);
-    }
-}
 
 const scene = loader.loadScene();
 
@@ -70,9 +28,7 @@ camera.addComponent(new OrbitController(camera, canvas, {
 }));
 scene.push(camera);
 
-for (const animation of loader.gltf.animations) {
-    loadAnimation(animation, scene);
-}
+loadAnimations(loader, scene);
 
 function update(t, dt) {
     for (const entity of scene) {
