@@ -1,6 +1,9 @@
 import { Animation } from './Animation.js';
 import { Transform } from 'engine/core/core.js';
+import { Animation } from './Animation.js';
+import { Transform } from 'engine/core/core.js';
 
+function loadAnimationSampler(loader, sampler) {
 function loadAnimationSampler(loader, sampler) {
     const keyframes = [];
     const values = [];
@@ -32,11 +35,15 @@ function loadAnimationChannel(channel, samplers, scene) {
         interpolation: sampler.interpolation,
         keyframes: sampler.keyframes,
         values: sampler.values,
+        interpolation: sampler.interpolation,
+        keyframes: sampler.keyframes,
+        values: sampler.values,
         fps: 1
     });
     entity.addComponent(animation);
 }
 
+function loadAnimation(loader, gltfSpec, scene) {
 function loadAnimation(loader, gltfSpec, scene) {
     if (loader.cache.has(gltfSpec)) {
         return loader.cache.get(gltfSpec);
@@ -45,6 +52,8 @@ function loadAnimation(loader, gltfSpec, scene) {
     if (gltfSpec.channels === undefined || gltfSpec.samplers === undefined) {
         return null;
     }
+
+    const samplers = gltfSpec.samplers.map(s => loadAnimationSampler(loader, s));
 
     const samplers = gltfSpec.samplers.map(s => loadAnimationSampler(loader, s));
 
