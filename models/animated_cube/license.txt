@@ -1,0 +1,8 @@
+Model Information:
+* title:	Animated Cube
+* source:	https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/AnimatedCube
+* author:	Norbert Nopper
+
+Model License:
+* license type:	CC0 1.0 Universal
+© 2017, UX3D. CC0 1.0 Universal
