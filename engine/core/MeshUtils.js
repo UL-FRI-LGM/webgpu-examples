@@ -37,7 +37,7 @@ export function mergeAxisAlignedBoundingBoxes(boxes) {
     };
 
     return {
-        min: boxes.reduce(({ min: amin }, { min: bmin }) => vec3.min(amin, amin, bmin), initial),
-        max: boxes.reduce(({ max: amax }, { max: bmax }) => vec3.max(amax, amax, bmax), initial),
+        ...boxes.reduce(({ min: amin }, { min: bmin }) => ({ min: vec3.min(amin, amin, bmin) }), initial),
+        ...boxes.reduce(({ max: amax }, { max: bmax }) => ({ max: vec3.max(amax, amax, bmax) }), initial),
     };
 }
